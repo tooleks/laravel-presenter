@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Tooleks\LaravelPresenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
  * Class ModelPresenterTest

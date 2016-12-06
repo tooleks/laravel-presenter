@@ -32,12 +32,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Tooleks\\LaravelPresenter\\": "src"
+            "Tooleks\\Laravel\\Presenter\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tooleks\\LaravelPresenter\\": "tests"
+            "Tooleks\\Laravel\\Presenter\\": "tests"
         }
     }
 }
