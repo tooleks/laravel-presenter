@@ -6,7 +6,7 @@ It is like a `view model` class that wraps original model/collection object into
 
 ## Requirements
 
-PHP >= 7.0, Laravel >= 5.0.
+PHP ~7.0, Laravel ~5.0.
 
 ## Installation
 
