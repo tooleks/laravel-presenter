@@ -1,6 +1,6 @@
 <?php
 
-namespace Tooleks\LaravelPresenter;
+namespace Tooleks\Laravel\Presenter;
 
 use Exception;
 use Illuminate\Support\Collection;

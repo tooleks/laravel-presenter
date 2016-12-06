@@ -1,6 +1,6 @@
 <?php
 
-use Tooleks\LaravelPresenter\CollectionPresenter;
+use Tooleks\Laravel\Presenter\CollectionPresenter;
 
 /**
  * Class UserCollectionPresenter

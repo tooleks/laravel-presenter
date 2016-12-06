@@ -1,6 +1,6 @@
 <?php
 
-use Tooleks\LaravelPresenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
  * Class UserPresenter

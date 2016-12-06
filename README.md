@@ -24,7 +24,7 @@ composer require tooleks/laravel-presenter
 
 Used for a presentation of the model entity.
 
-To define your model presenter class, you need to extend base `\Tooleks\LaravelPresenter\ModelPresenter` class, as shown in the example below.
+To define your model presenter class, you need to extend base `\Tooleks\Laravel\Presenter\ModelPresenter` class, as shown in the example below.
 
 Override `getOriginalModelClass()` method to provide an original model class name you want to represent.
 
@@ -35,7 +35,7 @@ Override the `getMap()` method to create a map for presenter-to-model properties
 
 namespace App\Presenters;
 
-use Tooleks\LaravelPresenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
  * Class UserPresenter
@@ -101,7 +101,7 @@ echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App
 
 Used for a presentation of the model collection.
 
-To define your collection presenter class, you need to extend base `\Tooleks\LaravelPresenter\CollectionPresenter` class, as shown in the example below.
+To define your collection presenter class, you need to extend base `\Tooleks\Laravel\Presenter\CollectionPresenter` class, as shown in the example below.
 
 Override `getModelPresenterClass()` method to provide a model presenter class name you want to collect.
 
@@ -110,7 +110,7 @@ Override `getModelPresenterClass()` method to provide a model presenter class na
 
 namespace App\Presenters;
 
-use Tooleks\LaravelPresenter\CollectionPresenter;
+use Tooleks\Laravel\Presenter\CollectionPresenter;
 
 /**
  * Class UserCollectionPresenter
@@ -152,7 +152,7 @@ $userCollectionPresenter = new \App\Presenters\UserCollectionPresenter($userColl
 
 ## Advanced Usage Examples
 
-`\Tooleks\LaravelPresenter\ModelPresenter` and `\Tooleks\LaravelPresenter\CollectionPresenter` classes implements `Arrayable`, `Jsonable`, `JsonSerializable` interfaces, so you may pass objects of these classes directly into the response. This may be helpful when you develop REST API.
+`\Tooleks\Laravel\Presenter\ModelPresenter` and `\Tooleks\Laravel\Presenter\CollectionPresenter` classes implements `Arrayable`, `Jsonable`, `JsonSerializable` interfaces, so you may pass objects of these classes directly into the response. This may be helpful when you develop REST API.
 
 ```php
 <?php

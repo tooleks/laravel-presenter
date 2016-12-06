@@ -2,8 +2,8 @@
 
 use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Collection;
-use Tooleks\LaravelPresenter\CollectionPresenter;
-use Tooleks\LaravelPresenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\CollectionPresenter;
+use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
  * Class CollectionPresenterTest
