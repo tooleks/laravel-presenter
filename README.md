@@ -63,7 +63,7 @@ class UserPresenter extends ModelPresenter
             'name' => 'username', // Property 'username' is mapped to 'name' attribute.
             'first_name' => 'first_name',  // Property 'first_name' is mapped to 'first_name' attribute.
             'last_name' => 'last_name',  // Property 'last_name' is mapped to 'last_name' attribute.
-            'full_name' => 'full_name', // Property 'full_name' is overriden in the 'fullName()' method.
+            'full_name' => 'full_name', // Property 'full_name' is overridden in the 'getFullNameAttribute()' method.
         ];
     }
 
