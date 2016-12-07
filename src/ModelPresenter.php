@@ -25,7 +25,6 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      * ModelPresenter constructor.
      *
      * @param mixed $originalModel
-     * @throws Exception
      */
     public function __construct($originalModel)
     {
