@@ -49,7 +49,7 @@ class ModelPresenterTest extends TestCase
     }
 
     /**
-     * Test properties.
+     * Test attributes.
      */
     public function testProperties()
     {
@@ -64,7 +64,7 @@ class ModelPresenterTest extends TestCase
     }
 
     /**
-     * Test properties override.
+     * Test attributes override.
      */
     public function testPropertiesOverride()
     {
@@ -89,15 +89,15 @@ class ModelPresenterTest extends TestCase
         $this->assertTrue(is_array($arrayFromToArrayMethod));
 
         $userPresenterReflector = new ReflectionObject($userPresenter);
-        $getMapMethod = $userPresenterReflector->getMethod('getMap');
+        $getMapMethod = $userPresenterReflector->getMethod('getAttributesMap');
         $getMapMethod->setAccessible(true);
 
-        $arrayFromGetMapMethod = $getMapMethod->invoke($userPresenter); // Call protected 'getMap()' method.
+        $arrayFromGetMapMethod = $getMapMethod->invoke($userPresenter); // Call protected 'getAttributesMap()' method.
 
         $this->assertTrue(array_diff_key($arrayFromToArrayMethod, $arrayFromGetMapMethod) === []);
 
-        foreach ($arrayFromToArrayMethod as $propertyName => $value) {
-            $this->assertTrue($value === $userPresenter->{$propertyName});
+        foreach ($arrayFromToArrayMethod as $attributeName => $value) {
+            $this->assertTrue($value === $userPresenter->{$attributeName});
         }
     }
 

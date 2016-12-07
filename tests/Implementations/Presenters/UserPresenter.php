@@ -22,7 +22,7 @@ class UserPresenter extends ModelPresenter
     /**
      * @inheritdoc
      */
-    protected function getMap() : array
+    protected function getAttributesMap() : array
     {
         return [
             'name' => 'username',
@@ -35,7 +35,7 @@ class UserPresenter extends ModelPresenter
     /**
      * @return string
      */
-    public function fullName()
+    public function getFullNameAttribute()
     {
         return $this->originalModel->first_name . ' ' . $this->originalModel->last_name;
     }

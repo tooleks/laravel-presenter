@@ -30,7 +30,7 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     {
         $this->originalModel = $originalModel;
 
-        $this->getValidatedOriginalModelClassType();
+        $this->validateOriginalModelClassType();
     }
 
     /**
@@ -43,30 +43,26 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     abstract protected function getOriginalModelClass() : string;
 
     /**
-     * Get the array map of presenter properties mapped to model properties.
+     * Get the array map of presenter attributes mapped to model attributes.
      *
-     * Override this method to build properties map.
+     * Override this method to build attributes map.
      *
      * Example: return [
      *     ...
-     *     'some_presenter_property_name' => 'some_model_property_name',
+     *     'model_presenter_attribute_name' => 'original_model_attribute_name',
      *     ...
      * ];
      *
-     * Note: You may override presenter property value by creating a method
-     * inside the presenter class with the same name as the property name.
-     *
      * @return array
      */
-    abstract protected function getMap() : array;
+    abstract protected function getAttributesMap() : array;
 
     /**
-     * Get validated original model class type.
+     * Validate original model class type.
      *
-     * @return string
      * @throws Exception
      */
-    protected function getValidatedOriginalModelClassType()
+    protected function validateOriginalModelClassType()
     {
         $originalModelClass = $this->getOriginalModelClass();
 
@@ -77,8 +73,6 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
         if (!($this->originalModel instanceof $originalModelClass)) {
             throw new Exception("The original model should be a '{$originalModelClass}' class type.");
         }
-
-        return $originalModelClass;
     }
 
     /**
@@ -92,26 +86,21 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Magical getter for mapping presenter properties to original model properties.
+     * Magical getter for mapping presenter attributes to original model attributes.
      *
-     * @param string $propertyName
+     * @param string $attributeName
      * @return mixed|null
      */
-    public function __get(string $propertyName)
+    public function __get(string $attributeName)
     {
-        $methodName = $propertyName;
+        $methodName = 'get' . str_replace('_', '', $attributeName) . 'attribute';
         if (method_exists($this, $methodName)) {
             return $this->{$methodName}();
         }
 
-        $methodName = str_replace('_', '', $propertyName);
-        if (method_exists($this, $methodName)) {
-            return $this->{$methodName}();
-        }
-
-        if (key_exists($propertyName, $this->getMap())) {
-            $property = $this->getMap()[$propertyName];
-            return $this->originalModel->{$property};
+        if (key_exists($attributeName, $this->getAttributesMap())) {
+            $attribute = $this->getAttributesMap()[$attributeName];
+            return $this->originalModel->{$attribute};
         }
 
         return null;
@@ -134,9 +123,9 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     {
         $array = [];
 
-        $properties = array_keys($this->getMap());
-        foreach ($properties as $property) {
-            $array[$property] = $this->{$property};
+        $attributes = array_keys($this->getAttributesMap());
+        foreach ($attributes as $attribute) {
+            $array[$attribute] = $this->{$attribute};
         }
 
         return $array;
