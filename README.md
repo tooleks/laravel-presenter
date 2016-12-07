@@ -49,7 +49,7 @@ class UserPresenter extends ModelPresenter
     /**
      * @inheritdoc
      */
-    protected function getOriginalModelClass(): string
+    protected function getOriginalModelClass() : string
     {
         return \App\User::class;
     }
@@ -57,7 +57,7 @@ class UserPresenter extends ModelPresenter
     /**
      * @inheritdoc
      */
-    protected function getAttributesMap(): array
+    protected function getAttributesMap() : array
     {
         return [
             'name' => 'username', // Attribute 'username' is mapped to 'name' attribute.
@@ -120,7 +120,7 @@ class UserCollectionPresenter extends CollectionPresenter
     /**
      * @inheritdoc
      */
-    protected function getModelPresenterClass(): string
+    protected function getModelPresenterClass() : string
     {
         return \App\Presenters\UserPresenter::class;
     }
