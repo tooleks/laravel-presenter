@@ -60,10 +60,10 @@ class UserPresenter extends ModelPresenter
     protected function getAttributesMap(): array
     {
         return [
-            'name' => 'username', // Property 'username' is mapped to 'name' attribute.
-            'first_name' => 'first_name',  // Property 'first_name' is mapped to 'first_name' attribute.
-            'last_name' => 'last_name',  // Property 'last_name' is mapped to 'last_name' attribute.
-            'full_name' => 'full_name', // Property 'full_name' is overridden in the 'getFullNameAttribute()' method.
+            'name' => 'username', // Attribute 'username' is mapped to 'name' attribute.
+            'first_name' => 'first_name',  // Attribute 'first_name' is mapped to 'first_name' attribute.
+            'last_name' => 'last_name',  // Attribute 'last_name' is mapped to 'last_name' attribute.
+            'full_name' => 'full_name', // Attribute 'full_name' is overridden in the 'getFullNameAttribute()' method.
         ];
     }
 
