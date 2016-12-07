@@ -9,7 +9,8 @@ use Illuminate\Contracts\Support\Jsonable;
 
 /**
  * Class ModelPresenter
- * @package App\Presenters
+ * @package Tooleks\Laravel\Presenter
+ * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
 abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
 {

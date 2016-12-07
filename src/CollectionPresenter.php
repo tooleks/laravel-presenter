@@ -7,7 +7,8 @@ use Illuminate\Support\Collection;
 
 /**
  * Class CollectionPresenter
- * @package App\Presenters
+ * @package Tooleks\Laravel\Presenter
+ * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
 abstract class CollectionPresenter extends Collection
 {
