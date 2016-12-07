@@ -93,7 +93,7 @@ $userPresenter = new \App\Presenters\UserPresenter($user);
 
 echo $userPresenter->name; // Prints 'anna' string, as we mapped '\App\User' 'username' attribute to '\App\Presenters\UserPresenter' 'name' attribute.
 echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped '\App\User' 'first_name' attribute to '\App\Presenters\UserPresenter' 'first_name' attribute.
-echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter' 'full_name' attribute with the 'fullName()' method.
+echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter' 'full_name' attribute with the 'getFullNameAttribute()' method.
 
 ```
 
