@@ -86,12 +86,24 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Magical getter for mapping presenter attributes to original model attributes.
+     * Magical attributes setter.
+     *
+     * @param string $attributeName
+     * @param string $attributeValue
+     * @return void
+     */
+    public function __set($attributeName, $attributeValue)
+    {
+        // Adding new attributes dynamically is not allowed.
+    }
+
+    /**
+     * Magical attributes getter for mapping presenter attributes to original model attributes.
      *
      * @param string $attributeName
      * @return mixed|null
      */
-    public function __get(string $attributeName)
+    public function __get($attributeName)
     {
         $methodName = 'get' . str_replace('_', '', $attributeName) . 'attribute';
         if (method_exists($this, $methodName)) {

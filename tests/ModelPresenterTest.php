@@ -49,9 +49,23 @@ class ModelPresenterTest extends TestCase
     }
 
     /**
-     * Test attributes.
+     * Test set attributes.
      */
-    public function testAttributes()
+    public function testSetAttribute()
+    {
+        $user = $this->provideUserModel();
+
+        $userPresenter = new UserPresenter($user);
+
+        $userPresenter->password = 'password';
+
+        $this->assertTrue($userPresenter->password === null);
+    }
+
+    /**
+     * Test get attributes.
+     */
+    public function testGetAttribute()
     {
         $user = $this->provideUserModel();
 
