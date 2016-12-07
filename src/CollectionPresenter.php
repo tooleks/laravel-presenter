@@ -40,7 +40,7 @@ abstract class CollectionPresenter extends Collection
     /**
      * Validate model presenter class type.
      *
-     * @return string
+     * @return void
      * @throws Exception
      */
     protected function validateModelPresenterClassType()
@@ -50,8 +50,6 @@ abstract class CollectionPresenter extends Collection
         if (!class_exists($modelPresenterClass)) {
             throw new Exception("'{$modelPresenterClass}' class does not exist.");
         }
-
-        return $modelPresenterClass;
     }
 
     /**
