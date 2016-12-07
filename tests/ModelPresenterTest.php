@@ -51,14 +51,14 @@ class ModelPresenterTest extends TestCase
     /**
      * Test attributes.
      */
-    public function testProperties()
+    public function testAttributes()
     {
         $user = $this->provideUserModel();
 
         $userPresenter = new UserPresenter($user);
 
         $this->assertTrue($userPresenter->name === $user->username);
-        $this->assertTrue($userPresenter->password !== $user->password);
+        $this->assertTrue($userPresenter->password === null);
         $this->assertTrue($userPresenter->first_name === $user->first_name);
         $this->assertTrue($userPresenter->last_name === $user->last_name);
     }
@@ -66,7 +66,7 @@ class ModelPresenterTest extends TestCase
     /**
      * Test attributes override.
      */
-    public function testPropertiesOverride()
+    public function testAttributesOverride()
     {
         $user = $this->provideUserModel();
 
