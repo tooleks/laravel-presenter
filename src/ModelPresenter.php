@@ -61,6 +61,7 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     /**
      * Validate original model class type.
      *
+     * @return void
      * @throws Exception
      */
     protected function validateOriginalModelClassType()
