@@ -28,7 +28,7 @@ To define your model presenter class, you need to extend base `\Tooleks\Laravel\
 
 Override `getOriginalModelClass()` method to provide an original model class name you want to represent.
 
-Override the `getMap()` method to create a map for presenter-to-model properties. Also, you can override the mapping defined in the `getMap()` method with the method with the same name as the mapped property (see the `full_name` property and the `fullName()` overriding method in the example below, you can use 'camelCase' or 'snake_case' style for properties overriding method names).
+Override the `getAttributesMap()` method to create a map for presenter-to-model attributes. Also, you can override the mapping defined in the `getAttributesMap()` method with the mutator method (see the `full_name` attribute and the `getFullNameAttribute()` overriding method in the example below, you can use 'camelCase' or 'snake_case' style for attributes overriding method names).
 
 ```php
 <?php
@@ -39,10 +39,10 @@ use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
  * Class UserPresenter
- * @property string name
- * @property string first_name
- * @property string last_name
- * @property string full_name
+ * @attribute string name
+ * @attribute string first_name
+ * @attribute string last_name
+ * @attribute string full_name
  */
 class UserPresenter extends ModelPresenter
 {
@@ -57,12 +57,12 @@ class UserPresenter extends ModelPresenter
     /**
      * @inheritdoc
      */
-    protected function getMap(): array
+    protected function getAttributesMap(): array
     {
         return [
-            'name' => 'username', // Property 'username' is mapped to 'name' property.
-            'first_name' => 'first_name',  // Property 'first_name' is mapped to 'first_name' property.
-            'last_name' => 'last_name',  // Property 'last_name' is mapped to 'last_name' property.
+            'name' => 'username', // Property 'username' is mapped to 'name' attribute.
+            'first_name' => 'first_name',  // Property 'first_name' is mapped to 'first_name' attribute.
+            'last_name' => 'last_name',  // Property 'last_name' is mapped to 'last_name' attribute.
             'full_name' => 'full_name', // Property 'full_name' is overriden in the 'fullName()' method.
         ];
     }
@@ -70,7 +70,7 @@ class UserPresenter extends ModelPresenter
     /**
      * @return string
      */
-    public function fullName()
+    public function getFullNameAttribute()
     {
         return $this->originalModel->first_name . ' ' . $this->originalModel->last_name;
     }
@@ -78,7 +78,7 @@ class UserPresenter extends ModelPresenter
 
 ```
 
-Create a presenter object and use it like an object with `name`, `first_name`, `last_name`, `full_name` properties.
+Create a presenter object and use it like an object with `name`, `first_name`, `last_name`, `full_name` attributes.
 
 ```php
 <?php
@@ -91,9 +91,9 @@ $user->last_name = 'P.';
 
 $userPresenter = new \App\Presenters\UserPresenter($user);
 
-echo $userPresenter->name; // Prints 'anna' string, as we mapped '\App\User' 'username' property to '\App\Presenters\UserPresenter' 'name' property.
-echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped '\App\User' 'first_name' property to '\App\Presenters\UserPresenter' 'first_name' property.
-echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter' 'full_name' property with the 'fullName()' method.
+echo $userPresenter->name; // Prints 'anna' string, as we mapped '\App\User' 'username' attribute to '\App\Presenters\UserPresenter' 'name' attribute.
+echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped '\App\User' 'first_name' attribute to '\App\Presenters\UserPresenter' 'first_name' attribute.
+echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter' 'full_name' attribute with the 'fullName()' method.
 
 ```
 

@@ -20,7 +20,9 @@ abstract class CollectionPresenter extends Collection
     {
         parent::__construct();
 
-        $modelPresenterClass = $this->getValidatedModelPresenterClassType();
+        $this->validateModelPresenterClassType();
+
+        $modelPresenterClass = $this->getModelPresenterClass();
 
         foreach ($this->getFilteredArrayableItems($items) as $item) {
             $this->push(new $modelPresenterClass($item));
@@ -35,12 +37,12 @@ abstract class CollectionPresenter extends Collection
     abstract protected function getModelPresenterClass() : string;
 
     /**
-     * Get validated model presenter class type.
+     * Validate model presenter class type.
      *
      * @return string
      * @throws Exception
      */
-    protected function getValidatedModelPresenterClassType()
+    protected function validateModelPresenterClassType()
     {
         $modelPresenterClass = $this->getModelPresenterClass();
 
