@@ -28,7 +28,7 @@ To define your model presenter class, you need to extend base `\Tooleks\Laravel\
 
 Override `getOriginalModelClass()` method to provide an original model class name you want to represent.
 
-Override the `getAttributesMap()` method to create a map for presenter-to-model attributes. Also, you can override the mapping defined in the `getAttributesMap()` method with the mutator method (see the `full_name` attribute and the `getFullNameAttribute()` overriding method in the example below, you can use 'camelCase' or 'snake_case' style for attributes overriding method names).
+Override the `getAttributesMap()` method to create a map for presenter-to-model attributes. Also, you can override the mapping defined in the `getAttributesMap()` method with the mutator method (see the `full_name` attribute and the `getFullNameAttribute()` overriding method in the example below).
 
 ```php
 <?php
