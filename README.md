@@ -2,7 +2,7 @@
 
 This package provides abstract `ModelPresenter` and `CollectionPresenter` classes. 
 
-These classes created for wrapping original model/collection objects into a new presentations with new attributes.
+These classes created for wrapping original model/collection objects into new presentations with new attributes.
 
 ## Requirements
 
