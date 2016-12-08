@@ -8,9 +8,8 @@
         "laravel",
         "presenter",
         "representation",
-        "view",
-        "model",
         "entity",
+        "model",
         "collection"
     ],
     "homepage": "https://github.com/tooleks/laravel-presenter",
