@@ -30,26 +30,26 @@ class ModelPresenterTest extends TestCase
     {
         try {
             $userPresenter = new UserPresenter((object)[]); // Passing invalid object type as an original model.
-            $initialized = true;
+            $isInitialized = true;
         } catch (Throwable $e) {
-            $initialized = false;
+            $isInitialized = false;
         }
 
-        $this->assertTrue($initialized === false);
+        $this->assertTrue($isInitialized === false);
 
         try {
             $userPresenter = new UserPresenter($this->provideUserModel()); // Passing valid object type as an original model.
-            $initialized = true;
+            $isInitialized = true;
         } catch (Throwable $e) {
-            $initialized = false;
+            $isInitialized = false;
         }
 
-        $this->assertTrue($initialized === true);
+        $this->assertTrue($isInitialized === true);
         $this->assertTrue($userPresenter instanceof ModelPresenter);
     }
 
     /**
-     * Test set attributes.
+     * Test set attribute.
      */
     public function testSetAttribute()
     {
@@ -57,9 +57,23 @@ class ModelPresenterTest extends TestCase
 
         $userPresenter = new UserPresenter($user);
 
-        $userPresenter->password = 'password';
+        try {
+            $userPresenter->first_name = 'Anna';
+            $isSet = true;
+        } catch (Throwable $e) {
+            $isSet = false;
+        }
 
-        $this->assertTrue($userPresenter->password === null);
+        $this->assertTrue($isSet === false);
+
+        try {
+            $userPresenter->password = 'password';
+            $isSet = true;
+        } catch (Throwable $e) {
+            $isSet = false;
+        }
+
+        $this->assertTrue($isSet === false);
     }
 
     /**
