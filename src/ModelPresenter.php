@@ -6,6 +6,7 @@ use Exception;
 use JsonSerializable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Support\Str;
 
 /**
  * Class ModelPresenter
@@ -68,11 +69,11 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
         $originalModelClass = $this->getOriginalModelClass();
 
         if (!class_exists($originalModelClass)) {
-            throw new Exception("'{$originalModelClass}' class does not exist.");
+            throw new Exception(sprintf('"%s" class does not exist.', $originalModelClass));
         }
 
         if (!($this->originalModel instanceof $originalModelClass)) {
-            throw new Exception("The original model should be a '{$originalModelClass}' class type.");
+            throw new Exception(sprintf('The original model should be a "%s" class type.', $originalModelClass));
         }
     }
 
@@ -91,11 +92,11 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      *
      * @param string $attributeName
      * @param string $attributeValue
-     * @return void
+     * @throws Exception
      */
     public function __set($attributeName, $attributeValue)
     {
-        // Adding new attributes dynamically is not allowed.
+        throw new Exception('Attribute modification is not allowed.');
     }
 
     /**
@@ -106,17 +107,65 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      */
     public function __get($attributeName)
     {
-        $methodName = 'get' . str_replace('_', '', $attributeName) . 'attribute';
-        if (method_exists($this, $methodName)) {
-            return $this->{$methodName}();
+        // If the attribute has a accessor method,
+        // we will call that then return what it returns as the value.
+        if ($this->hasAttributeAccessor($attributeName)) {
+            return $this->getAttributeViaAccessor($attributeName);
         }
 
-        if (key_exists($attributeName, $this->getAttributesMap())) {
-            $attribute = $this->getAttributesMap()[$attributeName];
-            return $this->originalModel->{$attribute};
+        // If the attribute exists in the attributes map array,
+        // we will return mapped attribute from the original model as the value.
+        if ($this->hasAttributeInMap($attributeName)) {
+            return $this->getAttributeViaMap($attributeName);
         }
 
+        // Otherwise, we will return null value as a default value of an attribute.
         return null;
+    }
+
+    /**
+     * Determine if an accessor exists for an attribute.
+     *
+     * @param string $attributeName
+     * @return bool
+     * @internal param string $key
+     */
+    protected function hasAttributeAccessor(string $attributeName)
+    {
+        return method_exists($this, 'get' . Str::studly($attributeName) . 'Attribute');
+    }
+
+    /**
+     * Get the value of an attribute using its accessor.
+     *
+     * @param string $attributeName
+     * @return mixed
+     */
+    protected function getAttributeViaAccessor(string $attributeName)
+    {
+        return $this->{'get' . Str::studly($attributeName) . 'Attribute'}();
+    }
+
+    /**
+     * Determine if an attribute exists in the attributes map.
+     *
+     * @param string $attributeName
+     * @return bool
+     */
+    protected function hasAttributeInMap(string $attributeName)
+    {
+        return key_exists($attributeName, $this->getAttributesMap());
+    }
+
+    /**
+     * Get the value of an original attribute using the attributes map.
+     *
+     * @param string $attributeName
+     * @return bool
+     */
+    protected function getAttributeViaMap(string $attributeName)
+    {
+        return $this->originalModel->{$this->getAttributesMap()[$attributeName]};
     }
 
     /**
