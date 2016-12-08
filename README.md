@@ -2,6 +2,8 @@
 
 This package provides abstract `ModelPresenter` and `CollectionPresenter` classes. 
 
+These classes created for wrapping original model/collection objects into a new presentations with new attributes.
+
 ## Requirements
 
 PHP ~7.0, Laravel ~5.0.
