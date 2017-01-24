@@ -28,24 +28,19 @@ class ModelPresenterTest extends TestCase
      */
     public function testInitialization()
     {
-        try {
-            $userPresenter = new UserPresenter((object)[]); // Passing invalid object type as an original model.
-            $isInitialized = true;
-        } catch (Throwable $e) {
-            $isInitialized = false;
-        }
+        $userPresenter = new UserPresenter($this->provideUserModel()); // Passing valid object type as an original model.
 
-        $this->assertTrue($isInitialized === false);
+        $this->assertInstanceOf(ModelPresenter::class, $userPresenter);
+    }
 
-        try {
-            $userPresenter = new UserPresenter($this->provideUserModel()); // Passing valid object type as an original model.
-            $isInitialized = true;
-        } catch (Throwable $e) {
-            $isInitialized = false;
-        }
+    /**
+     * Test failed initialization.
+     */
+    public function testFailedInitialization()
+    {
+        $this->expectException(Throwable::class);
 
-        $this->assertTrue($isInitialized === true);
-        $this->assertTrue($userPresenter instanceof ModelPresenter);
+        new UserPresenter((object)[]);
     }
 
     /**
@@ -53,27 +48,15 @@ class ModelPresenterTest extends TestCase
      */
     public function testSetAttribute()
     {
-        $user = $this->provideUserModel();
+        $userPresenter = new UserPresenter($this->provideUserModel());
 
-        $userPresenter = new UserPresenter($user);
+        $this->expectException(Throwable::class);
 
-        try {
-            $userPresenter->first_name = 'Anna';
-            $isSet = true;
-        } catch (Throwable $e) {
-            $isSet = false;
-        }
+        $userPresenter->first_name = 'Anna';
 
-        $this->assertTrue($isSet === false);
+        $this->expectException(Throwable::class);
 
-        try {
-            $userPresenter->password = 'password';
-            $isSet = true;
-        } catch (Throwable $e) {
-            $isSet = false;
-        }
-
-        $this->assertTrue($isSet === false);
+        $userPresenter->password = 'password';
     }
 
     /**
@@ -85,10 +68,10 @@ class ModelPresenterTest extends TestCase
 
         $userPresenter = new UserPresenter($user);
 
-        $this->assertTrue($userPresenter->name === $user->username);
-        $this->assertTrue($userPresenter->password === null);
-        $this->assertTrue($userPresenter->first_name === $user->first_name);
-        $this->assertTrue($userPresenter->last_name === $user->last_name);
+        $this->assertEquals($userPresenter->name, $user->username);
+        $this->assertEquals($userPresenter->password, null);
+        $this->assertEquals($userPresenter->first_name, $user->first_name);
+        $this->assertEquals($userPresenter->last_name, $user->last_name);
     }
 
     /**
@@ -100,7 +83,7 @@ class ModelPresenterTest extends TestCase
 
         $userPresenter = new UserPresenter($user);
 
-        $this->assertTrue($userPresenter->full_name === $user->first_name . ' ' . $user->last_name);
+        $this->assertEquals($userPresenter->full_name, $user->first_name . ' ' . $user->last_name);
     }
 
     /**
@@ -114,18 +97,17 @@ class ModelPresenterTest extends TestCase
 
         $arrayFromToArrayMethod = $userPresenter->toArray();
 
-        $this->assertTrue(is_array($arrayFromToArrayMethod));
+        $this->assertInternalType('array', $arrayFromToArrayMethod);
 
-        $userPresenterReflector = new ReflectionObject($userPresenter);
-        $getMapMethod = $userPresenterReflector->getMethod('getAttributesMap');
+        $getMapMethod = (new ReflectionObject($userPresenter))->getMethod('getAttributesMap');
         $getMapMethod->setAccessible(true);
 
         $arrayFromGetMapMethod = $getMapMethod->invoke($userPresenter); // Call protected 'getAttributesMap()' method.
 
-        $this->assertTrue(array_diff_key($arrayFromToArrayMethod, $arrayFromGetMapMethod) === []);
+        $this->assertEquals(array_diff_key($arrayFromToArrayMethod, $arrayFromGetMapMethod), []);
 
         foreach ($arrayFromToArrayMethod as $attributeName => $value) {
-            $this->assertTrue($value === $userPresenter->{$attributeName});
+            $this->assertEquals($value, $userPresenter->{$attributeName});
         }
     }
 
@@ -134,11 +116,9 @@ class ModelPresenterTest extends TestCase
      */
     public function testJsonSerializeMethod()
     {
-        $user = $this->provideUserModel();
+        $userPresenter = new UserPresenter($this->provideUserModel());
 
-        $userPresenter = new UserPresenter($user);
-
-        $this->assertTrue($userPresenter->jsonSerialize() === $userPresenter->toArray());
+        $this->assertEquals($userPresenter->jsonSerialize(), $userPresenter->toArray());
     }
 
     /**
@@ -150,6 +130,6 @@ class ModelPresenterTest extends TestCase
 
         $userPresenter = new UserPresenter($user);
 
-        $this->assertTrue(json_decode($userPresenter->toJson()) !== null);
+        $this->assertNotEquals(json_decode($userPresenter->toJson()), null);
     }
 }
