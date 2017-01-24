@@ -38,18 +38,23 @@ class CollectionPresenterTest extends TestCase
      */
     public function testInitialization()
     {
-        try {
-            $userCollectionPresenter = new UserCollectionPresenter($this->provideUserCollection());
-            $initialized = true;
-        } catch (Exception $e) {
-            $initialized = false;
-        }
+        $userCollectionPresenter = new UserCollectionPresenter($this->provideUserCollection());
 
-        $this->assertTrue($initialized === true);
-        $this->assertTrue($userCollectionPresenter instanceof CollectionPresenter);
+        $this->assertInstanceOf(CollectionPresenter::class, $userCollectionPresenter);
 
-        $userCollectionPresenter->map(function ($modelPresenter) {
-            $this->assertTrue($modelPresenter instanceof ModelPresenter);
+        $userCollectionPresenter->each(function ($userPresenter) {
+            $this->assertInstanceOf(ModelPresenter::class, $userPresenter);
+            $this->assertInstanceOf(UserPresenter::class, $userPresenter);
         });
+    }
+
+    /**
+     * Test failed initialization.
+     */
+    public function testFailedInitialization()
+    {
+        $this->expectException(Throwable::class);
+
+        new UserCollectionPresenter([(object)[]]);
     }
 }
