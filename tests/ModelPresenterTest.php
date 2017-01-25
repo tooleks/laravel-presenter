@@ -38,7 +38,7 @@ class ModelPresenterTest extends TestCase
      */
     public function testFailedInitialization()
     {
-        $this->expectException(Throwable::class);
+        $this->expectException(LogicException::class);
 
         new UserPresenter((object)[]);
     }
@@ -50,11 +50,11 @@ class ModelPresenterTest extends TestCase
     {
         $userPresenter = new UserPresenter($this->provideUserModel());
 
-        $this->expectException(Throwable::class);
+        $this->expectException(LogicException::class);
 
         $userPresenter->first_name = 'Anna';
 
-        $this->expectException(Throwable::class);
+        $this->expectException(LogicException::class);
 
         $userPresenter->password = 'password';
     }

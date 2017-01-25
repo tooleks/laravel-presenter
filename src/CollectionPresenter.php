@@ -2,11 +2,12 @@
 
 namespace Tooleks\Laravel\Presenter;
 
-use Exception;
 use Illuminate\Support\Collection;
+use LogicException;
 
 /**
- * Class CollectionPresenter
+ * Class CollectionPresenter.
+ *
  * @package Tooleks\Laravel\Presenter
  * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
@@ -19,15 +20,9 @@ abstract class CollectionPresenter extends Collection
      */
     public function __construct($items = [])
     {
-        parent::__construct();
+        $this->assertModelPresenterClass();
 
-        $this->validateModelPresenterClassType();
-
-        $modelPresenterClass = $this->getModelPresenterClass();
-
-        foreach ($this->getFilteredArrayableItems($items) as $item) {
-            $this->push(new $modelPresenterClass($item));
-        }
+        parent::__construct($this->presentItems($items));
     }
 
     /**
@@ -38,28 +33,41 @@ abstract class CollectionPresenter extends Collection
     abstract protected function getModelPresenterClass() : string;
 
     /**
-     * Validate model presenter class type.
+     * Assert model presenter class.
      *
      * @return void
-     * @throws Exception
+     * @throws LogicException
      */
-    protected function validateModelPresenterClassType()
+    protected function assertModelPresenterClass()
     {
         $modelPresenterClass = $this->getModelPresenterClass();
 
         if (!class_exists($modelPresenterClass)) {
-            throw new Exception("'{$modelPresenterClass}' class does not exist.");
+            throw new LogicException(sprintf('The "%s" class does not exist.'), $modelPresenterClass);
         }
     }
 
     /**
-     * Get filtered results array of items from Collection or Arrayable.
+     * Present collection items.
      *
      * @param mixed $items
      * @return array
      */
-    protected function getFilteredArrayableItems($items) : array
+    protected function presentItems($items)
     {
-        return array_filter($this->getArrayableItems($items));
+        return array_map([$this, 'presentItem'], $this->getArrayableItems($items));
+    }
+
+    /**
+     * Present collection item.
+     *
+     * @param mixed $item
+     * @return mixed
+     */
+    protected function presentItem($item)
+    {
+        $modelPresenterClass = $this->getModelPresenterClass();
+
+        return new $modelPresenterClass($item);
     }
 }

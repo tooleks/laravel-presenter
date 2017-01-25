@@ -53,7 +53,7 @@ class CollectionPresenterTest extends TestCase
      */
     public function testFailedInitialization()
     {
-        $this->expectException(Throwable::class);
+        $this->expectException(LogicException::class);
 
         new UserCollectionPresenter([(object)[]]);
     }

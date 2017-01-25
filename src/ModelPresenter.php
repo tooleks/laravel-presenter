@@ -2,14 +2,16 @@
 
 namespace Tooleks\Laravel\Presenter;
 
-use Exception;
-use JsonSerializable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
+use JsonSerializable;
+use LogicException;
 
 /**
- * Class ModelPresenter
+ * Class ModelPresenter.
+ *
+ * @property mixed originalModel
  * @package Tooleks\Laravel\Presenter
  * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
@@ -29,9 +31,9 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      */
     public function __construct($originalModel)
     {
-        $this->originalModel = $originalModel;
+        $this->assertOriginalModelClass($originalModel);
 
-        $this->validateOriginalModelClassType();
+        $this->originalModel = $originalModel;
     }
 
     /**
@@ -59,21 +61,22 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     abstract protected function getAttributesMap() : array;
 
     /**
-     * Validate original model class type.
+     * Validate original model class.
      *
+     * @param mixed $originalModel
      * @return void
-     * @throws Exception
+     * @throws LogicException
      */
-    protected function validateOriginalModelClassType()
+    protected function assertOriginalModelClass($originalModel)
     {
         $originalModelClass = $this->getOriginalModelClass();
 
         if (!class_exists($originalModelClass)) {
-            throw new Exception(sprintf('"%s" class does not exist.', $originalModelClass));
+            throw new LogicException(sprintf('The "%s" class does not exist.', $originalModelClass));
         }
 
-        if (!($this->originalModel instanceof $originalModelClass)) {
-            throw new Exception(sprintf('The original model should be a "%s" class type.', $originalModelClass));
+        if (!($originalModel instanceof $originalModelClass)) {
+            throw new LogicException(sprintf('The original model should be a "%s" class type.', $originalModelClass));
         }
     }
 
@@ -92,11 +95,11 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      *
      * @param string $attributeName
      * @param string $attributeValue
-     * @throws Exception
+     * @throws LogicException
      */
     public function __set($attributeName, $attributeValue)
     {
-        throw new Exception('Attribute modification is not allowed.');
+        throw new LogicException('Attribute modification is not allowed.');
     }
 
     /**
@@ -161,7 +164,7 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      * Get the value of an original attribute using the attributes map.
      *
      * @param string $attributeName
-     * @return bool
+     * @return mixed
      */
     protected function getAttributeViaMap(string $attributeName)
     {
