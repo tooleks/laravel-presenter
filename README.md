@@ -22,13 +22,15 @@ composer require tooleks/laravel-presenter
 
 ### Model Presenter
 
-Used for a presentation of the model entity.
+Used for a representation of the model entities.
 
 To define your model presenter class, you need to extend base `\Tooleks\Laravel\Presenter\ModelPresenter` class, as shown in the example below.
 
-Override `getOriginalModelClass()` method to provide an original model class name you want to represent.
+Override the `ModelPresenter::getOriginalModelClass()` method to provide an original model class name you want to represent.
 
-Override the `getAttributesMap()` method to create a map for presenter-to-model attributes. Also, you can override the mapping defined in the `getAttributesMap()` method with the accessor method (see the `full_name` attribute and the `getFullNameAttribute()` accessor method in the example below).
+Override the `ModelPresenter::getAttributesMap()` method to create a map for presenter-to-model attributes.
+
+Also, you can override the mapping defined in the `ModelPresenter::getAttributesMap()` method with the accessor methods (see the `full_name` attribute and the `UserPresenter::getFullNameAttribute()` accessor method in the example below).
 
 ```php
 <?php
@@ -38,7 +40,8 @@ namespace App\Presenters;
 use Tooleks\Laravel\Presenter\ModelPresenter;
 
 /**
- * Class UserPresenter
+ * Class UserPresenter.
+ *
  * @attribute string name
  * @attribute string first_name
  * @attribute string last_name
@@ -60,6 +63,7 @@ class UserPresenter extends ModelPresenter
     protected function getAttributesMap() : array
     {
         return [
+            // 'model_presenter_attribute_name' => 'original_model_attribute_name'
             'name' => 'username', // Attribute 'username' is mapped to 'name' attribute.
             'first_name' => 'first_name',  // Attribute 'first_name' is mapped to 'first_name' attribute.
             'last_name' => 'last_name',  // Attribute 'last_name' is mapped to 'last_name' attribute.
@@ -99,11 +103,11 @@ echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App
 
 ### Collection Presenter
 
-Used for a presentation of the model collection.
+Used for a representation of the model collections.
 
 To define your collection presenter class, you need to extend base `\Tooleks\Laravel\Presenter\CollectionPresenter` class, as shown in the example below.
 
-Override `getModelPresenterClass()` method to provide a model presenter class name you want to collect.
+Override the `CollectionPresenter::getModelPresenterClass()` method to provide a model presenter class name you want to collect.
 
 ```php
 <?php
@@ -113,7 +117,7 @@ namespace App\Presenters;
 use Tooleks\Laravel\Presenter\CollectionPresenter;
 
 /**
- * Class UserCollectionPresenter
+ * Class UserCollectionPresenter.
  */
 class UserCollectionPresenter extends CollectionPresenter
 {
