@@ -1,46 +1,31 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-use Tooleks\Laravel\Presenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\Presenter;
 
 /**
- * Class ModelPresenterTest
+ * Class PresenterArrayTest.
  */
-class ModelPresenterTest extends TestCase
+class PresenterArrayTest extends BaseTest
 {
-    /**
-     * Provide user model instance.
-     *
-     * @return User
-     */
-    protected function provideUserModel()
-    {
-        return new User([
-            'username' => 'anna',
-            'password' => 'password',
-            'first_name' => 'Anna',
-            'last_name' => 'P.',
-        ]);
-    }
-
     /**
      * Test initialization.
      */
     public function testInitialization()
     {
-        $userPresenter = new UserPresenter($this->provideUserModel()); // Passing valid object type as an original model.
+        $userPresenter = new UserPresenter($this->provideTestArray());
 
-        $this->assertInstanceOf(ModelPresenter::class, $userPresenter);
+        $this->assertInstanceOf(Presenter::class, $userPresenter);
     }
 
-    /**
-     * Test failed initialization.
-     */
-    public function testFailedInitialization()
-    {
-        $this->expectException(LogicException::class);
 
-        new UserPresenter((object)[]);
+    /**
+     * Test presenter initialization with invalid presentee type.
+     */
+    public function testPresenteeInvalidInitialization()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new UserPresenter('string');
     }
 
     /**
@@ -48,7 +33,7 @@ class ModelPresenterTest extends TestCase
      */
     public function testSetAttribute()
     {
-        $userPresenter = new UserPresenter($this->provideUserModel());
+        $userPresenter = new UserPresenter($this->provideTestArray());
 
         $this->expectException(LogicException::class);
 
@@ -64,14 +49,14 @@ class ModelPresenterTest extends TestCase
      */
     public function testGetAttribute()
     {
-        $user = $this->provideUserModel();
+        $user = $this->provideTestArray();
 
         $userPresenter = new UserPresenter($user);
 
-        $this->assertEquals($userPresenter->name, $user->username);
+        $this->assertEquals($userPresenter->name, $user['username']);
         $this->assertEquals($userPresenter->password, null);
-        $this->assertEquals($userPresenter->first_name, $user->first_name);
-        $this->assertEquals($userPresenter->last_name, $user->last_name);
+        $this->assertEquals($userPresenter->first_name, $user['first_name']);
+        $this->assertEquals($userPresenter->last_name, $user['last_name']);
     }
 
     /**
@@ -79,11 +64,11 @@ class ModelPresenterTest extends TestCase
      */
     public function testAttributesOverride()
     {
-        $user = $this->provideUserModel();
+        $user = $this->provideTestArray();
 
         $userPresenter = new UserPresenter($user);
 
-        $this->assertEquals($userPresenter->full_name, $user->first_name . ' ' . $user->last_name);
+        $this->assertEquals($userPresenter->full_name, $user['first_name'] . ' ' . $user['last_name']);
     }
 
     /**
@@ -91,7 +76,7 @@ class ModelPresenterTest extends TestCase
      */
     public function testToArrayMethod()
     {
-        $user = $this->provideUserModel();
+        $user = $this->provideTestArray();
 
         $userPresenter = new UserPresenter($user);
 
@@ -116,7 +101,7 @@ class ModelPresenterTest extends TestCase
      */
     public function testJsonSerializeMethod()
     {
-        $userPresenter = new UserPresenter($this->provideUserModel());
+        $userPresenter = new UserPresenter($this->provideTestArray());
 
         $this->assertEquals($userPresenter->jsonSerialize(), $userPresenter->toArray());
     }
@@ -126,7 +111,7 @@ class ModelPresenterTest extends TestCase
      */
     public function testToJsonMethod()
     {
-        $user = $this->provideUserModel();
+        $user = $this->provideTestArray();
 
         $userPresenter = new UserPresenter($user);
 

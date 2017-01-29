@@ -1,12 +1,12 @@
 # The Laravel 5 Presenter Package
 
-This package provides abstract `ModelPresenter` and `CollectionPresenter` classes. 
-
-These classes created for wrapping original model/collection objects into new presentations with new attributes.
+The package provides abstract `Presenter` class for wrapping model objects into new presentations. This may be useful when building API or passing parameters into views.
 
 ## Requirements
 
-PHP ~7.0, Laravel ~5.0.
+"php": "^7.0",
+"illuminate/support": "^5.2",
+"illuminate/contracts": "^5.2"
 
 ## Installation
 
@@ -18,56 +18,54 @@ Execute the following command to get the latest version of the package:
 composer require tooleks/laravel-presenter
 ```
 
-## Basic Usage Examples
+### App Configuration
 
-### Model Presenter
+To register the service provider simply add the `\Tooleks\Laravel\Presenter\Providers\PresenterProvider::class` into your `config/app.php` to the end of the `providers` array:
 
-Used for a representation of the model entities.
+```php
+'providers' => [
+    ...
+    \Tooleks\Laravel\Presenter\Providers\PresenterProvider::class,
+],
+```
 
-To define your model presenter class, you need to extend base `\Tooleks\Laravel\Presenter\ModelPresenter` class, as shown in the example below.
 
-Override the `ModelPresenter::getOriginalModelClass()` method to provide an original model class name you want to represent.
+## Usage Examples
 
-Override the `ModelPresenter::getAttributesMap()` method to create a map for presenter-to-model attributes.
+### Model Presentation
 
-Also, you can override the mapping defined in the `ModelPresenter::getAttributesMap()` method with the accessor methods (see the `full_name` attribute and the `UserPresenter::getFullNameAttribute()` accessor method in the example below).
+To define your presenter class, you need to extend base `\Tooleks\Laravel\Presenter\Presenter` class, as shown in the example below.
+
+Override the `Presenter::getAttributesMap()` method to build a map for presenter-to-presentee attributes.
+
+Also, you can override the mapping defined in the `Presenter::getAttributesMap()` method with the accessor methods (see the `full_name` attribute and the `UserPresenter::getFullNameAttribute()` accessor method in the example below).
 
 ```php
 <?php
 
-namespace App\Presenters;
-
-use Tooleks\Laravel\Presenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\Presenter;
 
 /**
  * Class UserPresenter.
  *
- * @attribute string name
- * @attribute string first_name
- * @attribute string last_name
- * @attribute string full_name
+ * @property string name
+ * @property string first_name
+ * @property string last_name
+ * @property string full_name
  */
-class UserPresenter extends ModelPresenter
+class UserPresenter extends Presenter
 {
-    /**
-     * @inheritdoc
-     */
-    protected function getOriginalModelClass() : string
-    {
-        return \App\User::class;
-    }
-
     /**
      * @inheritdoc
      */
     protected function getAttributesMap() : array
     {
         return [
-            // 'model_presenter_attribute_name' => 'original_model_attribute_name'
-            'name' => 'username', // Attribute 'username' is mapped to 'name' attribute.
-            'first_name' => 'first_name',  // Attribute 'first_name' is mapped to 'first_name' attribute.
-            'last_name' => 'last_name',  // Attribute 'last_name' is mapped to 'last_name' attribute.
-            'full_name' => 'full_name', // Attribute 'full_name' is overridden in the 'getFullNameAttribute()' method.
+            // 'presenter_attribute_name' => 'presentee_attribute_name'
+            'name' => 'username',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'full_name' => null,
         ];
     }
 
@@ -76,13 +74,30 @@ class UserPresenter extends ModelPresenter
      */
     public function getFullNameAttribute()
     {
-        return $this->originalModel->first_name . ' ' . $this->originalModel->last_name;
+        return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
     }
 }
 
 ```
 
-Create a presenter object and use it like an object with `name`, `first_name`, `last_name`, `full_name` attributes.
+Create a presenter object instance by passing presentee model into a constructor and use it like an object with `name`, `first_name`, `last_name`, `full_name` attributes.
+
+Note: Presentee model may be an `array` or an `object`.
+
+```php
+<?php
+
+$userPresenter = new \App\Presenters\UserPresenter([ // Create presenter from presentee array.
+    'username' => 'anna',
+    'first_name' => 'Anna',
+    'last_name' => 'P.',
+]);
+
+echo $userPresenter->name; // Prints 'anna' string, as we mapped 'username' attribute to '\App\Presenters\UserPresenter::$name' attribute.
+echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped 'first_name' attribute to '\App\Presenters\UserPresenter::$first_name' attribute.
+echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override 'full_name' attribute with the '\App\Presenters\UserPresenter::getFullNameAttribute()' method.
+
+```
 
 ```php
 <?php
@@ -93,46 +108,17 @@ $user->username = 'anna';
 $user->first_name = 'Anna';
 $user->last_name = 'P.';
 
-$userPresenter = new \App\Presenters\UserPresenter($user);
+$userPresenter = new \App\Presenters\UserPresenter($user); // Create presenter from presentee object.
 
-echo $userPresenter->name; // Prints 'anna' string, as we mapped '\App\User' 'username' attribute to '\App\Presenters\UserPresenter' 'name' attribute.
-echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped '\App\User' 'first_name' attribute to '\App\Presenters\UserPresenter' 'first_name' attribute.
-echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter' 'full_name' attribute with the 'getFullNameAttribute()' method.
-
-```
-
-### Collection Presenter
-
-Used for a representation of the model collections.
-
-To define your collection presenter class, you need to extend base `\Tooleks\Laravel\Presenter\CollectionPresenter` class, as shown in the example below.
-
-Override the `CollectionPresenter::getModelPresenterClass()` method to provide a model presenter class name you want to collect.
-
-```php
-<?php
-
-namespace App\Presenters;
-
-use Tooleks\Laravel\Presenter\CollectionPresenter;
-
-/**
- * Class UserCollectionPresenter.
- */
-class UserCollectionPresenter extends CollectionPresenter
-{
-    /**
-     * @inheritdoc
-     */
-    protected function getModelPresenterClass() : string
-    {
-        return \App\Presenters\UserPresenter::class;
-    }
-}
+echo $userPresenter->name; // Prints 'anna' string, as we mapped '\App\User::$username' attribute to '\App\Presenters\UserPresenter::$name' attribute.
+echo $userPresenter->first_name; // Prints 'Anna' string, as we mapped '\App\User::$first_name' attribute to '\App\Presenters\UserPresenter::$first_name' attribute.
+echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App\Presenters\UserPresenter::$full_name' attribute with the '\App\Presenters\UserPresenter::getFullNameAttribute()' method.
 
 ```
 
-Create a presenter object and use it like a collection of model presenter items.
+### Collection Presentation
+
+The package also provides collection macros method `\Illuminate\Support\Collection::present()` for wrapping each item in the collection into a presenter class.
 
 ```php
 <?php
@@ -150,13 +136,13 @@ $userCollection = new \Illuminate\Support\Collection([
     ]),
 ]); // A collection of the '\App\User' items.
 
-$userCollectionPresenter = new \App\Presenters\UserCollectionPresenter($userCollection); // A collection of the '\App\Presenters\UserPresenter' items.
+$userCollection->present(\App\Presenters\UserPresenter::class); // A collection of the '\App\Presenters\UserPresenter' items.
 
 ```
 
 ## Advanced Usage Examples
 
-`\Tooleks\Laravel\Presenter\ModelPresenter` and `\Tooleks\Laravel\Presenter\CollectionPresenter` classes implements `Arrayable`, `Jsonable`, `JsonSerializable` interfaces, so you may pass objects of these classes directly into the response. This may be helpful when you develop REST API.
+`\Tooleks\Laravel\Presenter\Presenter` class implements `Arrayable`, `Jsonable`, `JsonSerializable` interfaces, so you may pass objects of this class directly into the response.
 
 ```php
 <?php
@@ -164,14 +150,5 @@ $userCollectionPresenter = new \App\Presenters\UserCollectionPresenter($userColl
 $user = \App\User::find(1);
 
 return response(new \App\Presenters\UserPresenter($user));
-
-```
-
-```php
-<?php
-
-$users = \App\User::all();
-
-return response(new \App\Presenters\UserCollectionPresenter($users));
 
 ```
