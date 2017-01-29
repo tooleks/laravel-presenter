@@ -118,7 +118,7 @@ echo $userPresenter->full_name; // Prints 'Anna P.' string, as we override '\App
 
 ### Collection Presentation
 
-Package also provides collection macros method `\Illuminate\Support\Collection::present()` for wrapping each item in the collection into a presenter class.
+The package also provides collection macros method `\Illuminate\Support\Collection::present()` for wrapping each item in the collection into a presenter class.
 
 ```php
 <?php
@@ -136,7 +136,7 @@ $userCollection = new \Illuminate\Support\Collection([
     ]),
 ]); // A collection of the '\App\User' items.
 
-$userCollectionPresenter->present(\App\Presenters\UserPresenter::class); // A collection of the '\App\Presenters\UserPresenter' items.
+$userCollection->present(\App\Presenters\UserPresenter::class); // A collection of the '\App\Presenters\UserPresenter' items.
 
 ```
 
