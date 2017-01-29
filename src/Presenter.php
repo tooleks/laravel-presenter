@@ -6,53 +6,68 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use InvalidArgumentException;
 use LogicException;
 
 /**
- * Class ModelPresenter.
+ * Class Presenter.
  *
- * @property mixed originalModel
+ * @property object|array $presentee
  * @package Tooleks\Laravel\Presenter
  * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
-abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
+abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * Original model object.
+     * Presentee.
      *
-     * @var mixed
+     * @var object|array
      */
-    protected $originalModel;
+    protected $presentee;
 
     /**
-     * ModelPresenter constructor.
+     * Presenter constructor.
      *
-     * @param mixed $originalModel
+     * @param object|array $presentee
      */
-    public function __construct($originalModel)
+    public function __construct($presentee)
     {
-        $this->assertOriginalModelClass($originalModel);
+        $this->assertPresentee($presentee);
 
-        $this->originalModel = $originalModel;
+        $this->presentee = $presentee;
     }
 
     /**
-     * Get original model class.
+     * Get presentee.
      *
-     * Override this method to configure original model class.
-     *
-     * @return string
+     * @return object|array
      */
-    abstract protected function getOriginalModelClass() : string;
+    public function getPresentee()
+    {
+        return $this->presentee;
+    }
 
     /**
-     * Get the array map of presenter attributes mapped to model attributes.
+     * Assert presentee.
+     *
+     * @param object|array $presentee
+     * @throws InvalidArgumentException
+     */
+    protected function assertPresentee($presentee)
+    {
+        if (!is_array($presentee) && !is_object($presentee)) {
+            throw new InvalidArgumentException('Presentee should be an object or an array.');
+        }
+    }
+
+    /**
+     * Get the array map of presenter attributes mapped to presentee attributes.
      *
      * Override this method to build attributes map.
      *
      * Example: return [
      *     ...
-     *     'model_presenter_attribute_name' => 'original_model_attribute_name',
+     *     'presenter_attribute_name' => 'presentee_attribute_name',
      *     ...
      * ];
      *
@@ -61,40 +76,10 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     abstract protected function getAttributesMap() : array;
 
     /**
-     * Validate original model class.
-     *
-     * @param mixed $originalModel
-     * @return void
-     * @throws LogicException
-     */
-    protected function assertOriginalModelClass($originalModel)
-    {
-        $originalModelClass = $this->getOriginalModelClass();
-
-        if (!class_exists($originalModelClass)) {
-            throw new LogicException(sprintf('The "%s" class does not exist.', $originalModelClass));
-        }
-
-        if (!($originalModel instanceof $originalModelClass)) {
-            throw new LogicException(sprintf('The original model should be a "%s" class type.', $originalModelClass));
-        }
-    }
-
-    /**
-     * Get original model object.
-     *
-     * @return mixed
-     */
-    public function getOriginalModel()
-    {
-        return $this->originalModel;
-    }
-
-    /**
      * Magical attributes setter.
      *
      * @param string $attributeName
-     * @param string $attributeValue
+     * @param mixed $attributeValue
      * @throws LogicException
      */
     public function __set($attributeName, $attributeValue)
@@ -103,43 +88,38 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Magical attributes getter for mapping presenter attributes to original model attributes.
+     * Magical attributes getter for mapping presenter attributes to presentee attributes.
      *
      * @param string $attributeName
      * @return mixed|null
      */
     public function __get($attributeName)
     {
-        // If the attribute has a accessor method,
-        // we will call that then return what it returns as the value.
         if ($this->hasAttributeAccessor($attributeName)) {
             return $this->getAttributeViaAccessor($attributeName);
         }
 
-        // If the attribute exists in the attributes map array,
-        // we will return mapped attribute from the original model as the value.
         if ($this->hasAttributeInMap($attributeName)) {
             return $this->getAttributeViaMap($attributeName);
         }
 
-        // Otherwise, we will return null value as a default value of an attribute.
         return null;
     }
 
     /**
-     * Determine if an accessor exists for an attribute.
+     * Determine if an accessor method exists for an attribute.
      *
      * @param string $attributeName
      * @return bool
      * @internal param string $key
      */
-    protected function hasAttributeAccessor(string $attributeName)
+    protected function hasAttributeAccessor(string $attributeName) : bool
     {
         return method_exists($this, 'get' . Str::studly($attributeName) . 'Attribute');
     }
 
     /**
-     * Get the value of an attribute using its accessor.
+     * Get the value of an attribute using its accessor method.
      *
      * @param string $attributeName
      * @return mixed
@@ -155,24 +135,45 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
      * @param string $attributeName
      * @return bool
      */
-    protected function hasAttributeInMap(string $attributeName)
+    protected function hasAttributeInMap(string $attributeName) : bool
     {
         return key_exists($attributeName, $this->getAttributesMap());
     }
 
     /**
-     * Get the value of an original attribute using the attributes map.
+     * Get the value of an attribute using the attributes map.
      *
      * @param string $attributeName
-     * @return mixed
+     * @return mixed|null
      */
     protected function getAttributeViaMap(string $attributeName)
     {
-        return $this->originalModel->{$this->getAttributesMap()[$attributeName]};
+        $presenteeAttributeName = $this->getAttributesMap()[$attributeName] ?? null;
+
+        return $this->getPresenteeAttribute($presenteeAttributeName);
     }
 
     /**
-     * Convert the model to its string representation.
+     * Get presentee attribute.
+     *
+     * @param string $attributeName
+     * @return mixed|null
+     */
+    protected function getPresenteeAttribute(string $attributeName)
+    {
+        if (is_array($this->presentee) && isset($this->presentee[$attributeName])) {
+            return array_get($this->presentee, $attributeName);
+        }
+
+        if (is_object($this->presentee) && isset($this->presentee->{$attributeName})) {
+            return object_get($this->presentee, $attributeName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Convert the object to its string representation.
      *
      * @return string
      */
@@ -199,7 +200,7 @@ abstract class ModelPresenter implements Arrayable, Jsonable, JsonSerializable
     /**
      * @inheritdoc
      */
-    public function toJson($options = 0)
+    public function toJson($options = JSON_ERROR_NONE)
     {
         return json_encode($this->jsonSerialize(), $options);
     }

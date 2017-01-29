@@ -1,34 +1,28 @@
 <?php
 
-use Tooleks\Laravel\Presenter\ModelPresenter;
+use Tooleks\Laravel\Presenter\Presenter;
 
 /**
- * Class UserPresenter
+ * Class UserPresenter.
+ *
  * @property string name
  * @property string first_name
  * @property string last_name
  * @property string full_name
  */
-class UserPresenter extends ModelPresenter
+class UserPresenter extends Presenter
 {
-    /**
-     * @inheritdoc
-     */
-    protected function getOriginalModelClass() : string
-    {
-        return User::class;
-    }
-
     /**
      * @inheritdoc
      */
     protected function getAttributesMap() : array
     {
         return [
+            // 'presenter_attribute_name' => 'presentee_attribute_name'
             'name' => 'username',
             'first_name' => 'first_name',
             'last_name' => 'last_name',
-            'full_name' => 'full_name',
+            'full_name' => null,
         ];
     }
 
@@ -37,6 +31,6 @@ class UserPresenter extends ModelPresenter
      */
     public function getFullNameAttribute()
     {
-        return $this->originalModel->first_name . ' ' . $this->originalModel->last_name;
+        return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
     }
 }
