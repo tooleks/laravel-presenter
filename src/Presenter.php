@@ -161,11 +161,11 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     protected function getPresenteeAttribute(string $attributeName)
     {
-        if (is_array($this->presentee) && isset($this->presentee[$attributeName])) {
+        if (is_array($this->presentee)) {
             return array_get($this->presentee, $attributeName);
         }
 
-        if (is_object($this->presentee) && isset($this->presentee->{$attributeName})) {
+        if (is_object($this->presentee)) {
             return object_get($this->presentee, $attributeName);
         }
 
