@@ -4,7 +4,7 @@ The package provides abstract `Presenter` class for wrapping model objects into 
 
 ## Requirements
 
-"php": "~7.0",
+"php": "^7.0",
 "illuminate/support": "^5.2",
 "illuminate/contracts": "^5.2"
 
