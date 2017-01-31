@@ -57,6 +57,7 @@ class PresenterObjectTest extends BaseTest
         $this->assertEquals($userPresenter->password, null);
         $this->assertEquals($userPresenter->first_name, $user->first_name);
         $this->assertEquals($userPresenter->last_name, $user->last_name);
+        $this->assertEquals($userPresenter->role, $user->role->name);
     }
 
     /**

@@ -42,7 +42,7 @@ class BaseTest extends TestCase
      */
     protected function provideTestObject()
     {
-        return (object)$this->provideTestArray();
+        return json_decode(json_encode($this->provideTestArray())); // Hack to recursively cast an array to an object.
     }
 
     /**
@@ -57,6 +57,9 @@ class BaseTest extends TestCase
             'password' => 'password',
             'first_name' => 'Anna',
             'last_name' => 'P.',
+            'role' => [
+                'name' => 'User',
+            ],
         ];
     }
 
