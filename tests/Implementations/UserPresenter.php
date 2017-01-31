@@ -9,6 +9,7 @@ use Tooleks\Laravel\Presenter\Presenter;
  * @property string first_name
  * @property string last_name
  * @property string full_name
+ * @property string role
  */
 class UserPresenter extends Presenter
 {
@@ -23,6 +24,7 @@ class UserPresenter extends Presenter
             'first_name' => 'first_name',
             'last_name' => 'last_name',
             'full_name' => null,
+            'role' => 'role.name',
         ];
     }
 
