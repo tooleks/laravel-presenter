@@ -99,6 +99,8 @@ Note: Presentee model may be an `array` or an `object`.
 ```php
 <?php
 
+use App\Presenters\UserPresenter;
+
 $userArray = [ 
     'username' => 'anna',
     'first_name' => 'Anna',
@@ -108,7 +110,7 @@ $userArray = [
     ],
 ];
 
-$userPresenter = new \App\Presenters\UserPresenter($userArray); // Create presenter from presentee array.
+$userPresenter = new UserPresenter($userArray); // Create presenter from presentee array.
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
@@ -119,6 +121,8 @@ echo $userPresenter->role;          // Prints 'User' string, as we mapped presen
 ```php
 <?php
 
+use App\Presenters\UserPresenter;
+
 $userObject = (object)[
     'username' => 'anna',
     'first_name' => 'Anna',
@@ -128,7 +132,7 @@ $userObject = (object)[
     ],
 ];
 
-$userPresenter = new \App\Presenters\UserPresenter($userObject); // Create presenter from presentee object.
+$userPresenter = new UserPresenter($userObject); // Create presenter from presentee object.
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
@@ -143,20 +147,24 @@ The package also provides collection macros method `present()` for wrapping each
 ```php
 <?php
 
-$userCollection = new \Illuminate\Support\Collection([
-    new \App\User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-    new \App\User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-]); // A collection of the '\App\User' items.
+use Illuminate\Support\Collection;
+use App\Presenters\UserPresenter;
+use App\User;
 
-$userCollection->present(\App\Presenters\UserPresenter::class); // A collection of the '\App\Presenters\UserPresenter' items.
+$userCollection = new Collection([
+    new User([
+        'username' => 'anna',
+        'first_name' => 'Anna',
+        'last_name' => 'P.',
+    ]),
+    new User([
+        'username' => 'anna',
+        'first_name' => 'Anna',
+        'last_name' => 'P.',
+    ]),
+]); // A collection of the 'User' items.
+
+$userCollection->present(UserPresenter::class); // A collection of the 'UserPresenter' items.
 ```
 
 ## Advanced Usage Examples
@@ -166,7 +174,10 @@ The `Tooleks\Laravel\Presenter\Presenter` class implements `Illuminate\Contracts
 ```php
 <?php
 
-$user = \App\User::find(1);
+use App\Presenters\UserPresenter;
+use App\User;
 
-return response(new \App\Presenters\UserPresenter($user));
+$user = User::find(1);
+
+return response(new UserPresenter($user));
 ```
