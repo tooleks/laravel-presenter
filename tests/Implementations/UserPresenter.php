@@ -23,16 +23,10 @@ class UserPresenter extends Presenter
             'name' => 'username',
             'first_name' => 'first_name',
             'last_name' => 'last_name',
-            'full_name' => null,
+            'full_name' => function () {
+                return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
+            },
             'role' => 'role.name',
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getFullNameAttribute()
-    {
-        return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
     }
 }
