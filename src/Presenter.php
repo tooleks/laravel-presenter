@@ -119,12 +119,12 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     {
         $presenteeAttribute = $this->getAttributesMap()[$attributeName] ?? null;
 
-        if (is_string($presenteeAttribute)) {
-            return $this->getPresenteeAttribute($presenteeAttribute);
-        }
-
         if (is_callable($presenteeAttribute)) {
             return $this->processCallback($presenteeAttribute);
+        }
+
+        if (is_string($presenteeAttribute)) {
+            return $this->getPresenteeAttribute($presenteeAttribute);
         }
 
         return null;
