@@ -21,7 +21,6 @@ class PresenterObjectTest extends BaseTest
         $this->assertInstanceOf(Presenter::class, $testPresenter);
     }
 
-
     /**
      * Test presenter initialization with invalid presentee type.
      */
