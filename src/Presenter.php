@@ -8,8 +8,8 @@ use Illuminate\Contracts\{
 };
 use JsonSerializable;
 use Tooleks\Laravel\Presenter\{
-    Contracts\InvalidArgumentExceptionContract,
-    Contracts\PresenterExceptionContract,
+    Contracts\InvalidArgumentException as InvalidArgumentExceptionContract,
+    Contracts\PresenterException as PresenterExceptionContract,
     Exceptions\InvalidArgumentException,
     Exceptions\PresenterException
 };
