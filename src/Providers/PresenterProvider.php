@@ -2,8 +2,10 @@
 
 namespace Tooleks\Laravel\Presenter\Providers;
 
-use Illuminate\Support\Collection;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\{
+    Collection,
+    ServiceProvider
+};
 
 /**
  * Class PresenterProvider.

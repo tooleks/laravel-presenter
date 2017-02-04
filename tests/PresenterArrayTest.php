@@ -1,6 +1,10 @@
 <?php
 
-use Tooleks\Laravel\Presenter\Presenter;
+use Tooleks\Laravel\Presenter\{
+    Contracts\InvalidArgumentException,
+    Contracts\PresenterException,
+    Presenter
+};
 
 /**
  * Class PresenterArrayTest.
@@ -12,9 +16,9 @@ class PresenterArrayTest extends BaseTest
      */
     public function testInitialization()
     {
-        $userPresenter = new UserPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($this->provideTestArray());
 
-        $this->assertInstanceOf(Presenter::class, $userPresenter);
+        $this->assertInstanceOf(Presenter::class, $testPresenter);
     }
 
 
@@ -25,7 +29,7 @@ class PresenterArrayTest extends BaseTest
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new UserPresenter('string');
+        new TestPresenter('string');
     }
 
     /**
@@ -33,15 +37,15 @@ class PresenterArrayTest extends BaseTest
      */
     public function testSetAttribute()
     {
-        $userPresenter = new UserPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($this->provideTestArray());
 
-        $this->expectException(LogicException::class);
+        $this->expectException(PresenterException::class);
 
-        $userPresenter->first_name = 'Anna';
+        $testPresenter->plain = 'Anna';
 
-        $this->expectException(LogicException::class);
+        $this->expectException(PresenterException::class);
 
-        $userPresenter->password = 'password';
+        $testPresenter->not_existing = 'not_existing_value';
     }
 
     /**
@@ -49,27 +53,14 @@ class PresenterArrayTest extends BaseTest
      */
     public function testGetAttribute()
     {
-        $user = $this->provideTestArray();
+        $test = $this->provideTestArray();
 
-        $userPresenter = new UserPresenter($user);
+        $testPresenter = new TestPresenter($test);
 
-        $this->assertEquals($userPresenter->name, $user['username']);
-        $this->assertEquals($userPresenter->password, null);
-        $this->assertEquals($userPresenter->first_name, $user['first_name']);
-        $this->assertEquals($userPresenter->last_name, $user['last_name']);
-        $this->assertEquals($userPresenter->role, $user['role']['name']);
-    }
-
-    /**
-     * Test attributes override.
-     */
-    public function testAttributesOverride()
-    {
-        $user = $this->provideTestArray();
-
-        $userPresenter = new UserPresenter($user);
-
-        $this->assertEquals($userPresenter->full_name, $user['first_name'] . ' ' . $user['last_name']);
+        $this->assertEquals($testPresenter->plain, $test['plain_attribute']);
+        $this->assertEquals($testPresenter->nested, $test['nested']['attribute']);
+        $this->assertEquals($testPresenter->callable, $test['plain_attribute'] . ' ' . $test['nested']['attribute']);
+        $this->assertEquals($testPresenter->not_existing, null);
     }
 
     /**
@@ -77,23 +68,24 @@ class PresenterArrayTest extends BaseTest
      */
     public function testToArrayMethod()
     {
-        $user = $this->provideTestArray();
+        $test = $this->provideTestArray();
 
-        $userPresenter = new UserPresenter($user);
+        $testPresenter = new TestPresenter($test);
 
-        $arrayFromToArrayMethod = $userPresenter->toArray();
+        $arrayFromToArrayMethod = $testPresenter->toArray();
 
         $this->assertInternalType('array', $arrayFromToArrayMethod);
 
-        $getMapMethod = (new ReflectionObject($userPresenter))->getMethod('getAttributesMap');
+        $getMapMethod = (new ReflectionObject($testPresenter))->getMethod('getAttributesMap');
         $getMapMethod->setAccessible(true);
 
-        $arrayFromGetMapMethod = $getMapMethod->invoke($userPresenter); // Call protected 'getAttributesMap()' method.
+        $arrayFromGetMapMethod = $getMapMethod->invoke($testPresenter); // Call protected 'getAttributesMap()' method.
 
+        $this->assertInternalType('array', $arrayFromGetMapMethod);
         $this->assertEquals(array_diff_key($arrayFromToArrayMethod, $arrayFromGetMapMethod), []);
 
         foreach ($arrayFromToArrayMethod as $attributeName => $value) {
-            $this->assertEquals($value, $userPresenter->{$attributeName});
+            $this->assertEquals($value, $testPresenter->{$attributeName});
         }
     }
 
@@ -102,9 +94,9 @@ class PresenterArrayTest extends BaseTest
      */
     public function testJsonSerializeMethod()
     {
-        $userPresenter = new UserPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($this->provideTestArray());
 
-        $this->assertEquals($userPresenter->jsonSerialize(), $userPresenter->toArray());
+        $this->assertEquals($testPresenter->jsonSerialize(), $testPresenter->toArray());
     }
 
     /**
@@ -112,10 +104,10 @@ class PresenterArrayTest extends BaseTest
      */
     public function testToJsonMethod()
     {
-        $user = $this->provideTestArray();
+        $test = $this->provideTestArray();
 
-        $userPresenter = new UserPresenter($user);
+        $testPresenter = new TestPresenter($test);
 
-        $this->assertNotEquals(json_decode($userPresenter->toJson()), null);
+        $this->assertNotEquals(json_decode($testPresenter->toJson()), null);
     }
 }

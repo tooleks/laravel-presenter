@@ -2,12 +2,17 @@
 
 namespace Tooleks\Laravel\Presenter;
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\{
+    Support\Arrayable,
+    Support\Jsonable
+};
 use JsonSerializable;
-use InvalidArgumentException;
-use LogicException;
+use Tooleks\Laravel\Presenter\{
+    Contracts\InvalidArgumentExceptionContract,
+    Contracts\PresenterExceptionContract,
+    Exceptions\InvalidArgumentException,
+    Exceptions\PresenterException
+};
 
 /**
  * Class Presenter.
@@ -19,7 +24,7 @@ use LogicException;
 abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * Presentee.
+     * Presentee model.
      *
      * @var object|array
      */
@@ -38,6 +43,19 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
+     * Assert presentee model.
+     *
+     * @param object|array $presentee
+     * @throws InvalidArgumentExceptionContract
+     */
+    protected function assertPresentee($presentee)
+    {
+        if (!is_array($presentee) && !is_object($presentee)) {
+            throw new InvalidArgumentException('Presentee should be an object or an array.');
+        }
+    }
+
+    /**
      * Get presentee.
      *
      * @return object|array
@@ -45,19 +63,6 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     public function getPresentee()
     {
         return $this->presentee;
-    }
-
-    /**
-     * Assert presentee.
-     *
-     * @param object|array $presentee
-     * @throws InvalidArgumentException
-     */
-    protected function assertPresentee($presentee)
-    {
-        if (!is_array($presentee) && !is_object($presentee)) {
-            throw new InvalidArgumentException('Presentee should be an object or an array.');
-        }
     }
 
     /**
@@ -80,11 +85,11 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      *
      * @param string $attributeName
      * @param mixed $attributeValue
-     * @throws LogicException
+     * @throws PresenterExceptionContract
      */
     public function __set($attributeName, $attributeValue)
     {
-        throw new LogicException('Attribute modification is not allowed.');
+        throw new PresenterException('Attribute modification is not allowed.');
     }
 
     /**
@@ -123,7 +128,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
             return $this->processCallback($presenteeAttribute);
         }
 
-        if (is_string($presenteeAttribute)) {
+        if (is_string($attributeName) || is_numeric($attributeName)) {
             return $this->getPresenteeAttribute($presenteeAttribute);
         }
 
