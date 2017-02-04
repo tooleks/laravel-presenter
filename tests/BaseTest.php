@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Foundation\{
+    Application,
+    Testing\TestCase
+};
 use Illuminate\Support\Collection;
 use Tooleks\Laravel\Presenter\Providers\PresenterProvider;
 
@@ -53,12 +55,9 @@ class BaseTest extends TestCase
     protected function provideTestArray()
     {
         return [
-            'username' => 'anna',
-            'password' => 'password',
-            'first_name' => 'Anna',
-            'last_name' => 'P.',
-            'role' => [
-                'name' => 'User',
+            'plain_attribute' => 'plain_attribute_value',
+            'nested' => [
+                'attribute' => 'nested_attribute_value',
             ],
         ];
     }

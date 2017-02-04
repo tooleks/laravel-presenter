@@ -49,8 +49,6 @@ To define your presenter class, you need to extend base `Tooleks\Laravel\Present
 
 Override the `getAttributesMap()` method to build a map for presenter-to-presentee attributes.
 
-Also, you can override the mapping defined in the `getAttributesMap()` method by the accessor methods (see the `full_name` attribute and the `getFullNameAttribute()` accessor method in the example below).
-
 ```php
 <?php
 
@@ -77,17 +75,11 @@ class UserPresenter extends Presenter
             'name' => 'username',           // The presentee 'username' attribute mapped to presenter 'name' attribute.
             'first_name' => 'first_name',   // The presentee 'first_name' attribute mapped to presenter 'first_name' attribute.
             'last_name' => 'last_name',     // The presentee 'last_name' attribute mapped to presenter 'last_name' attribute.
-            'full_name' => null,            // The presenter 'full_name' attribute overridden by the presenter 'getFullNameAttribute()' method.
+            'full_name' => function () {
+                return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
+            },                              // The presenter 'full_name' attribute overridden by the anonymous function.
             'role' => 'role.name',          // The presentee 'role.name' nested attribute mapped to presenter 'role' attribute.
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getFullNameAttribute()
-    {
-        return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
     }
 }
 ```
@@ -114,7 +106,7 @@ $userPresenter = new UserPresenter($userArray); // Create presenter from present
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the presenter 'getFullNameAttribute()' method.
+echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
 echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
 ```
 
@@ -136,7 +128,7 @@ $userPresenter = new UserPresenter($userObject); // Create presenter from presen
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the presenter 'getFullNameAttribute()' method.
+echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
 echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
 ```
 
@@ -180,4 +172,12 @@ use App\User;
 $user = User::find(1);
 
 return response(new UserPresenter($user));
+```
+
+## Tests
+
+Execute the following command to run tests:
+
+```shell
+./vendor/bin/phpunit
 ```

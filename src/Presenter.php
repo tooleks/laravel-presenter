@@ -2,12 +2,17 @@
 
 namespace Tooleks\Laravel\Presenter;
 
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\{
+    Support\Arrayable,
+    Support\Jsonable
+};
 use JsonSerializable;
-use InvalidArgumentException;
-use LogicException;
+use Tooleks\Laravel\Presenter\{
+    Contracts\InvalidArgumentException as InvalidArgumentExceptionContract,
+    Contracts\PresenterException as PresenterExceptionContract,
+    Exceptions\InvalidArgumentException,
+    Exceptions\PresenterException
+};
 
 /**
  * Class Presenter.
@@ -19,7 +24,7 @@ use LogicException;
 abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * Presentee.
+     * Presentee model.
      *
      * @var object|array
      */
@@ -38,6 +43,19 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
+     * Assert presentee model.
+     *
+     * @param object|array $presentee
+     * @throws InvalidArgumentExceptionContract
+     */
+    protected function assertPresentee($presentee)
+    {
+        if (!is_array($presentee) && !is_object($presentee)) {
+            throw new InvalidArgumentException('Presentee should be an object or an array.');
+        }
+    }
+
+    /**
      * Get presentee.
      *
      * @return object|array
@@ -45,19 +63,6 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     public function getPresentee()
     {
         return $this->presentee;
-    }
-
-    /**
-     * Assert presentee.
-     *
-     * @param object|array $presentee
-     * @throws InvalidArgumentException
-     */
-    protected function assertPresentee($presentee)
-    {
-        if (!is_array($presentee) && !is_object($presentee)) {
-            throw new InvalidArgumentException('Presentee should be an object or an array.');
-        }
     }
 
     /**
@@ -80,11 +85,11 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      *
      * @param string $attributeName
      * @param mixed $attributeValue
-     * @throws LogicException
+     * @throws PresenterExceptionContract
      */
     public function __set($attributeName, $attributeValue)
     {
-        throw new LogicException('Attribute modification is not allowed.');
+        throw new PresenterException('Attribute modification is not allowed.');
     }
 
     /**
@@ -95,38 +100,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     public function __get($attributeName)
     {
-        if ($this->hasAttributeAccessor($attributeName)) {
-            return $this->getAttributeViaAccessor($attributeName);
-        }
-
-        if ($this->hasAttributeInMap($attributeName)) {
-            return $this->getAttributeViaMap($attributeName);
-        }
-
-        return null;
-    }
-
-    /**
-     * Determine if an accessor method exists for an attribute.
-     *
-     * @param string $attributeName
-     * @return bool
-     * @internal param string $key
-     */
-    protected function hasAttributeAccessor(string $attributeName) : bool
-    {
-        return method_exists($this, 'get' . Str::studly($attributeName) . 'Attribute');
-    }
-
-    /**
-     * Get the value of an attribute using its accessor method.
-     *
-     * @param string $attributeName
-     * @return mixed
-     */
-    protected function getAttributeViaAccessor(string $attributeName)
-    {
-        return $this->{'get' . Str::studly($attributeName) . 'Attribute'}();
+        return $this->hasAttributeInMap($attributeName) ? $this->getAttributeViaMap($attributeName) : null;
     }
 
     /**
@@ -137,7 +111,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     protected function hasAttributeInMap(string $attributeName) : bool
     {
-        return key_exists($attributeName, $this->getAttributesMap());
+        return array_key_exists($attributeName, $this->getAttributesMap());
     }
 
     /**
@@ -148,9 +122,28 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     protected function getAttributeViaMap(string $attributeName)
     {
-        $presenteeAttributeName = $this->getAttributesMap()[$attributeName] ?? null;
+        $presenteeAttribute = $this->getAttributesMap()[$attributeName] ?? null;
 
-        return $this->getPresenteeAttribute($presenteeAttributeName);
+        if (is_callable($presenteeAttribute)) {
+            return $this->processCallback($presenteeAttribute);
+        }
+
+        if (is_string($attributeName) || is_numeric($attributeName)) {
+            return $this->getPresenteeAttribute($presenteeAttribute);
+        }
+
+        return null;
+    }
+
+    /**
+     * Process callback function.
+     *
+     * @param callable $callback
+     * @return mixed
+     */
+    protected function processCallback(callable $callback)
+    {
+        return call_user_func($callback, $this->presentee);
     }
 
     /**
@@ -165,20 +158,20 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
             return null;
         }
 
-        $value = $this->presentee;
+        $attribute = $this->presentee;
 
         foreach (explode('.', $attributeName) as $segment) {
-            if (is_array($value) && isset($value[$segment])) {
-                $value = $value[$segment];
-            } elseif (is_object($value) && isset($value->{$segment})) {
-                $value = $value->{$segment};
+            if (is_array($attribute) && isset($attribute[$segment])) {
+                $attribute = $attribute[$segment];
+            } elseif (is_object($attribute) && isset($attribute->{$segment})) {
+                $attribute = $attribute->{$segment};
             } else {
-                $value = null;
+                $attribute = null;
                 break;
             }
         }
 
-        return $value;
+        return $attribute;
     }
 
     /**

@@ -13,7 +13,7 @@ class CollectionPresenterTest extends BaseTest
     public function testCollectionPresentMethod()
     {
         $this->provideTestCollection()
-            ->present(UserPresenter::class)
+            ->present(TestPresenter::class)
             ->map(function ($userPresenter) {
                 $this->assertInstanceOf(Presenter::class, $userPresenter);
             });
