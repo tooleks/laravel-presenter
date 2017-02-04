@@ -106,7 +106,7 @@ $userPresenter = new UserPresenter($userArray); // Create presenter from present
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute.
+echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
 echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
 ```
 
@@ -128,7 +128,7 @@ $userPresenter = new UserPresenter($userObject); // Create presenter from presen
 
 echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
 echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute.
+echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
 echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
 ```
 
