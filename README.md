@@ -77,7 +77,7 @@ class UserPresenter extends Presenter
             'last_name' => 'last_name',     // The presentee 'last_name' attribute mapped to presenter 'last_name' attribute.
             'full_name' => function () {
                 return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
-            },                              // The presenter 'full_name' attribute overridden by the presenter 'getFullNameAttribute()' method.
+            },                              // The presenter 'full_name' attribute overridden by the anonymous function.
             'role' => 'role.name',          // The presentee 'role.name' nested attribute mapped to presenter 'role' attribute.
         ];
     }
