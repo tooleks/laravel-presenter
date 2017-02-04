@@ -72,13 +72,13 @@ class UserPresenter extends Presenter
     {
         return [
             // 'presenter_attribute_name' => 'presentee_attribute_name'
-            'name' => 'username',           // The presentee 'username' attribute mapped to presenter 'name' attribute.
-            'first_name' => 'first_name',   // The presentee 'first_name' attribute mapped to presenter 'first_name' attribute.
-            'last_name' => 'last_name',     // The presentee 'last_name' attribute mapped to presenter 'last_name' attribute.
+            'name' => 'username',           // The presenter 'name' attribute mapped to presentee 'username' attribute.
+            'first_name' => 'first_name',   // The presenter 'first_name' attribute mapped to presentee 'first_name' attribute.
+            'last_name' => 'last_name',     // The presenter 'last_name' attribute mapped to presentee 'last_name' attribute.
             'full_name' => function () {
                 return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
             },                              // The presenter 'full_name' attribute overridden by the anonymous function.
-            'role' => 'role.name',          // The presentee 'role.name' nested attribute mapped to presenter 'role' attribute.
+            'role' => 'role.name',          // The presenter 'role' attribute mapped to presentee 'role.name' nested attribute.
         ];
     }
 }
