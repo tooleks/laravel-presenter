@@ -173,3 +173,11 @@ $user = User::find(1);
 
 return response(new UserPresenter($user));
 ```
+
+## Tests
+
+Execute the following command to run tests:
+
+```shell
+./vendor/bin/phpunit
+```
