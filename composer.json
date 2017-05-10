@@ -2,7 +2,7 @@
     "name": "tooleks/laravel-presenter",
     "type": "library",
     "description": "The Laravel Presenter Package",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": [
         "php",
         "laravel",

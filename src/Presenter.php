@@ -17,6 +17,10 @@ use Tooleks\Laravel\Presenter\{
 /**
  * Class Presenter.
  *
+ * Legend
+ * Presentee - the model that is presented by a presenter.
+ * Presenter - the model that presents a presentee.
+ *
  * @property object|array $presentee
  * @package Tooleks\Laravel\Presenter
  * @author Oleksandr Tolochko <tooleks@gmail.com>
@@ -39,7 +43,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     {
         $this->assertPresentee($presentee);
 
-        $this->presentee = $presentee;
+        $this->setPresentee($presentee);
     }
 
     /**
@@ -51,12 +55,23 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     protected function assertPresentee($presentee)
     {
         if (!is_array($presentee) && !is_object($presentee)) {
-            throw new InvalidArgumentException('Presentee should be an object or an array.');
+            throw new InvalidArgumentException('Presentee model should be an object or an array.');
         }
     }
 
     /**
-     * Get presentee.
+     * Set presentee model.
+     *
+     * @param array|object $presentee
+     * @return void
+     */
+    protected function setPresentee($presentee)
+    {
+        $this->presentee = $presentee;
+    }
+
+    /**
+     * Get presentee model.
      *
      * @return object|array
      */
@@ -66,7 +81,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Get the array map of presenter attributes mapped to presentee attributes.
+     * Get the array map of presenter attributes mapped to presentee model attributes.
      *
      * Override this method to build attributes map.
      *
@@ -81,54 +96,36 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     abstract protected function getAttributesMap() : array;
 
     /**
-     * Magical attributes setter.
+     * Attributes setter.
      *
-     * @param string $attributeName
-     * @param mixed $attributeValue
+     * @param string $attribute
+     * @param mixed $value
      * @throws PresenterExceptionContract
      */
-    public function __set($attributeName, $attributeValue)
+    public function __set($attribute, $value)
     {
         throw new PresenterException('Attribute modification is not allowed.');
     }
 
     /**
-     * Magical attributes getter for mapping presenter attributes to presentee attributes.
+     * Attributes getter for mapping presenter attributes to presentee model attributes.
      *
-     * @param string $attributeName
+     * @param string $attribute
      * @return mixed|null
      */
-    public function __get($attributeName)
+    public function __get($attribute)
     {
-        return $this->hasAttributeInMap($attributeName) ? $this->getAttributeViaMap($attributeName) : null;
-    }
+        $presenteeAttribute = $this->getAttributesMap()[$attribute] ?? null;
 
-    /**
-     * Determine if an attribute exists in the attributes map.
-     *
-     * @param string $attributeName
-     * @return bool
-     */
-    protected function hasAttributeInMap(string $attributeName) : bool
-    {
-        return array_key_exists($attributeName, $this->getAttributesMap());
-    }
-
-    /**
-     * Get the value of an attribute using the attributes map.
-     *
-     * @param string $attributeName
-     * @return mixed|null
-     */
-    protected function getAttributeViaMap(string $attributeName)
-    {
-        $presenteeAttribute = $this->getAttributesMap()[$attributeName] ?? null;
-
-        if (is_callable($presenteeAttribute)) {
-            return $this->processCallback($presenteeAttribute);
+        if (is_null($presenteeAttribute)) {
+            return null;
         }
 
-        if (is_string($attributeName) || is_numeric($attributeName)) {
+        if (is_callable($presenteeAttribute)) {
+            return call_user_func($presenteeAttribute, $this->presentee);
+        }
+
+        if (is_string($attribute) || is_float($attribute) || is_int($attribute) || is_bool($attribute)) {
             return $this->getPresenteeAttribute($presenteeAttribute);
         }
 
@@ -136,42 +133,28 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Process callback function.
+     * Get presentee model attribute.
      *
-     * @param callable $callback
-     * @return mixed
-     */
-    protected function processCallback(callable $callback)
-    {
-        return call_user_func($callback, $this->presentee);
-    }
-
-    /**
-     * Get presentee attribute.
-     *
-     * @param string $attributeName
+     * @param string $attribute
      * @return mixed|null
      */
-    protected function getPresenteeAttribute(string $attributeName)
+    public function getPresenteeAttribute(string $attribute)
     {
-        if (is_null($attributeName) || trim($attributeName) === '') {
-            return null;
-        }
+        $value = $this->presentee;
 
-        $attribute = $this->presentee;
-
-        foreach (explode('.', $attributeName) as $segment) {
-            if (is_array($attribute) && isset($attribute[$segment])) {
-                $attribute = $attribute[$segment];
-            } elseif (is_object($attribute) && isset($attribute->{$segment})) {
-                $attribute = $attribute->{$segment};
+        // Loop for retrieving nested attributes declared by using "dot notation".
+        foreach (explode('.', $attribute) as $nestedAttribute) {
+            if (is_array($value) && isset($value[$nestedAttribute])) {
+                $value = $value[$nestedAttribute];
+            } elseif (is_object($value) && isset($value->{$nestedAttribute})) {
+                $value = $value->{$nestedAttribute};
             } else {
-                $attribute = null;
+                $value = null;
                 break;
             }
         }
 
-        return $attribute;
+        return $value;
     }
 
     /**
@@ -189,14 +172,13 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     public function toArray()
     {
-        $array = [];
-
         $attributes = array_keys($this->getAttributesMap());
+
         foreach ($attributes as $attribute) {
             $array[$attribute] = $this->{$attribute};
         }
 
-        return $array;
+        return $array ?? [];
     }
 
     /**
