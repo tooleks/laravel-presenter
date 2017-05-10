@@ -1,6 +1,6 @@
-# The Laravel 5 Presenter Package
+# The Laravel Presenter Package
 
-The package provides abstract `Presenter` layer for wrapping model objects into new presentations.
+The package provides the `Presenter` layer for wrapping model objects into new presentations.
 
 ## Features
 
