@@ -4,7 +4,6 @@ use Illuminate\Foundation\{
     Application,
     Testing\TestCase
 };
-use Illuminate\Support\Collection;
 use Tooleks\Laravel\Presenter\Providers\PresenterProvider;
 
 /**
@@ -38,41 +37,48 @@ class BaseTest extends TestCase
     }
 
     /**
-     * Provide test object.
-     *
-     * @return object
-     */
-    protected function provideTestObject()
-    {
-        return json_decode(json_encode($this->provideTestArray())); // Hack to recursively cast an array to an object.
-    }
-
-    /**
-     * Provide test array.
+     * Test array provider.
      *
      * @return array
      */
-    protected function provideTestArray()
+    public function testArrayProvider()
     {
         return [
-            'plain_attribute' => 'plain_attribute_value',
-            'nested' => [
-                'attribute' => 'nested_attribute_value',
-            ],
+            [[
+                'plain_attribute' => 'plain_attribute_value',
+                'nested' => [
+                    'attribute' => 'nested_attribute_value',
+                ],
+            ]],
         ];
     }
 
     /**
-     * Provide test collection.
+     * Test object provider.
      *
-     * @return Collection
+     * @return array
      */
-    protected function provideTestCollection()
+    public function testObjectProvider()
     {
-        return collect([
-            $this->provideTestObject(),
-            $this->provideTestObject(),
-            $this->provideTestObject(),
-        ]);
+        return [
+            // Hack to recursively cast an array to an object.
+            [json_decode(json_encode($this->testArrayProvider()[0][0]))],
+        ];
+    }
+
+    /**
+     * Test collection provider.
+     *
+     * @return array
+     */
+    public function testCollectionProvider()
+    {
+        return [
+            [collect([
+                $this->testObjectProvider()[0][0],
+                $this->testObjectProvider()[0][0],
+                $this->testObjectProvider()[0][0],
+            ])],
+        ];
     }
 }

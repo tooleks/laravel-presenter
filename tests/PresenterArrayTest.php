@@ -13,10 +13,13 @@ class PresenterArrayTest extends BaseTest
 {
     /**
      * Test initialization.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testInitialization()
+    public function testInitialization($array)
     {
-        $testPresenter = new TestPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($array);
 
         $this->assertInstanceOf(Presenter::class, $testPresenter);
     }
@@ -33,10 +36,13 @@ class PresenterArrayTest extends BaseTest
 
     /**
      * Test set attribute.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testSetAttribute()
+    public function testSetAttribute($array)
     {
-        $testPresenter = new TestPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($array);
 
         $this->expectException(PresenterException::class);
 
@@ -49,27 +55,29 @@ class PresenterArrayTest extends BaseTest
 
     /**
      * Test get attributes.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testGetAttribute()
+    public function testGetAttribute($array)
     {
-        $test = $this->provideTestArray();
+        $testPresenter = new TestPresenter($array);
 
-        $testPresenter = new TestPresenter($test);
-
-        $this->assertEquals($testPresenter->plain, $test['plain_attribute']);
-        $this->assertEquals($testPresenter->nested, $test['nested']['attribute']);
-        $this->assertEquals($testPresenter->callable, $test['plain_attribute'] . ' ' . $test['nested']['attribute']);
+        $this->assertEquals($testPresenter->plain, $array['plain_attribute']);
+        $this->assertEquals($testPresenter->nested, $array['nested']['attribute']);
+        $this->assertEquals($testPresenter->callable, $array['plain_attribute'] . ' ' . $array['nested']['attribute']);
         $this->assertEquals($testPresenter->not_existing, null);
     }
 
     /**
      * Test toArray() method.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testToArrayMethod()
+    public function testToArrayMethod($array)
     {
-        $test = $this->provideTestArray();
-
-        $testPresenter = new TestPresenter($test);
+        $testPresenter = new TestPresenter($array);
 
         $arrayFromToArrayMethod = $testPresenter->toArray();
 
@@ -90,22 +98,26 @@ class PresenterArrayTest extends BaseTest
 
     /**
      * Test jsonSerialize() method.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testJsonSerializeMethod()
+    public function testJsonSerializeMethod($array)
     {
-        $testPresenter = new TestPresenter($this->provideTestArray());
+        $testPresenter = new TestPresenter($array);
 
         $this->assertEquals($testPresenter->jsonSerialize(), $testPresenter->toArray());
     }
 
     /**
      * Test toJson() method.
+     *
+     * @dataProvider testArrayProvider
+     * @param array $array
      */
-    public function testToJsonMethod()
+    public function testToJsonMethod($array)
     {
-        $test = $this->provideTestArray();
-
-        $testPresenter = new TestPresenter($test);
+        $testPresenter = new TestPresenter($array);
 
         $this->assertNotEquals(json_decode($testPresenter->toJson()), null);
     }
