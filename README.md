@@ -48,7 +48,7 @@ To register the service provider simply add the `Tooleks\Laravel\Presenter\Provi
 
 To define your presenter class, you need to extend base `Tooleks\Laravel\Presenter\Presenter` class, as shown in the example below.
 
-Override the `getAttributesMap()` method to build a map for presenter to wrapped model attributes.
+Override the `getAttributesMap()` method to build attributes map definition.
 
 ```php
 <?php
@@ -121,7 +121,7 @@ echo $userPresenter->role;
 
 ### Collection Presentation
 
-The package also provides collection macros method `present()` for wrapping each item in the collection into a presenter class.
+The package also provides the collection macros method `present()` for wrapping each item in the collection into a presenter class.
 
 ```php
 <?php
