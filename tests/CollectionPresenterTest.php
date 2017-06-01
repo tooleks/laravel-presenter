@@ -16,10 +16,8 @@ class CollectionPresenterTest extends BaseTest
      */
     public function testCollectionPresentMethod($collection)
     {
-        $collection
-            ->present(TestPresenter::class)
-            ->map(function ($testPresenter) {
-                $this->assertInstanceOf(Presenter::class, $testPresenter);
-            });
+        $collection->present(TestPresenter::class)->each(function ($testPresenter) {
+            $this->assertInstanceOf(Presenter::class, $testPresenter);
+        });
     }
 }

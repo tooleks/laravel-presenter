@@ -12,7 +12,7 @@ The package supports:
 * The Laravel 5.2 collections
 * JSON serialization
 * Casting to array/JSON
-* Service injections into the constructor
+* Injections into the constructor
 
 ## Requirements
 

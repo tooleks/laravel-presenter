@@ -6,9 +6,9 @@ use Tooleks\Laravel\Presenter\Exceptions\PresenterException;
 use Tooleks\Laravel\Presenter\Presenter;
 
 /**
- * Class PresenterModelTest.
+ * Class PresenterTest.
  */
-class PresenterModelTest extends BaseTest
+class PresenterTest extends BaseTest
 {
     /**
      * @dataProvider testModelProvider
