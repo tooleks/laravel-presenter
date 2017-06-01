@@ -9,8 +9,6 @@ use Tooleks\Laravel\Presenter\Presenter;
 class CollectionPresenterTest extends BaseTest
 {
     /**
-     * Test collection present method.
-     *
      * @dataProvider testCollectionProvider
      * @param Collection $collection
      */

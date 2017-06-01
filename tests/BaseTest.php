@@ -24,9 +24,6 @@ class BaseTest extends TestCase
         return $app;
     }
 
-    /**
-     * Test presenter provider registration.
-     */
     public function testPresenterProvider()
     {
         $presenterProvider = $this->app->getProvider(PresenterProvider::class);
@@ -35,8 +32,6 @@ class BaseTest extends TestCase
     }
 
     /**
-     * Test array provider.
-     *
      * @return array
      */
     public function testModelProvider()
@@ -55,8 +50,6 @@ class BaseTest extends TestCase
     }
 
     /**
-     * Test collection provider.
-     *
      * @return array
      */
     public function testCollectionProvider()

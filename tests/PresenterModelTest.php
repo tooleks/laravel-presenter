@@ -6,9 +6,9 @@ use Tooleks\Laravel\Presenter\Exceptions\PresenterException;
 use Tooleks\Laravel\Presenter\Presenter;
 
 /**
- * Class PresenterTest.
+ * Class PresenterModelTest.
  */
-class PresenterTest extends BaseTest
+class PresenterModelTest extends BaseTest
 {
     /**
      * @dataProvider testModelProvider
@@ -107,8 +107,6 @@ class PresenterTest extends BaseTest
     }
 
     /**
-     * Test toArray() method.
-     *
      * @dataProvider testModelProvider
      * @param array $model
      */
@@ -134,8 +132,6 @@ class PresenterTest extends BaseTest
     }
 
     /**
-     * Test jsonSerialize() method.
-     *
      * @dataProvider testModelProvider
      * @param array $model
      */
@@ -147,8 +143,6 @@ class PresenterTest extends BaseTest
     }
 
     /**
-     * Test toJson() method.
-     *
      * @dataProvider testModelProvider
      * @param array $model
      */
