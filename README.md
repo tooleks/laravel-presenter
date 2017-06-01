@@ -60,9 +60,8 @@ use Tooleks\Laravel\Presenter\Presenter;
 /**
  * Class UserPresenter.
  *
- * @property string name
- * @property string first_name
- * @property string last_name
+ * @property string nickname
+ * @property string short_name
  * @property string full_name
  * @property string role
  */
@@ -127,24 +126,10 @@ The package also provides collection macros method `present()` for wrapping each
 ```php
 <?php
 
-use Illuminate\Support\Collection;
 use App\Presenters\UserPresenter;
-use App\User;
 
-$userCollection = new Collection([
-    new User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-    new User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-]); // A collection of the 'User' items.
-
-$userCollection->present(UserPresenter::class); // A collection of the 'UserPresenter' items.
+collect([$userArray, $userObject])->present(UserPresenter::class);
+// Create the collection of the 'UserPresenter' items.
 ```
 
 ## Advanced Usage Examples
@@ -155,9 +140,8 @@ The `Tooleks\Laravel\Presenter\Presenter` class implements `Illuminate\Contracts
 <?php
 
 use App\Presenters\UserPresenter;
-use App\User;
 
-$user = User::find(1);
+$user = \App\User::find(1);
 
 return response(app()->make(UserPresenter::class)->setWrappedModel($user));
 ```
