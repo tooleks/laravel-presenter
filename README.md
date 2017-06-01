@@ -103,7 +103,7 @@ $user = [
 $userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user);
 // Create the presenter from the wrapped model array.
 
-$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel((object)$user);
+$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel((object) $user);
 // Create the presenter from the wrapped model object.
 
 echo $userPresenter->nickname;
