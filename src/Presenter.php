@@ -2,105 +2,91 @@
 
 namespace Tooleks\Laravel\Presenter;
 
-use Illuminate\Contracts\{
-    Support\Arrayable,
-    Support\Jsonable
-};
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
-use Tooleks\Laravel\Presenter\{
-    Contracts\InvalidArgumentException as InvalidArgumentExceptionContract,
-    Contracts\PresenterException as PresenterExceptionContract,
-    Exceptions\InvalidArgumentException,
-    Exceptions\PresenterException
-};
+use Tooleks\Laravel\Presenter\Exceptions\AttributeNotFoundException;
+use Tooleks\Laravel\Presenter\Exceptions\InvalidArgumentException;
+use Tooleks\Laravel\Presenter\Exceptions\PresenterException;
 
 /**
  * Class Presenter.
  *
- * Legend
- * Presentee - the model that is presented by a presenter.
- * Presenter - the model that presents a presentee.
- *
- * @property object|array $presentee
+ * @property object|array wrappedModel
  * @package Tooleks\Laravel\Presenter
  * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
 abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * Presentee model.
+     * The wrapped model.
      *
      * @var object|array
      */
-    protected $presentee;
+    protected $wrappedModel = null;
 
     /**
-     * Presenter constructor.
+     * Assert the wrapped model.
      *
-     * @param object|array $presentee
+     * @throws PresenterException
      */
-    public function __construct($presentee)
+    protected function assertWrappedModel()
     {
-        $this->assertPresentee($presentee);
-
-        $this->setPresentee($presentee);
-    }
-
-    /**
-     * Assert presentee model.
-     *
-     * @param object|array $presentee
-     * @throws InvalidArgumentExceptionContract
-     */
-    protected function assertPresentee($presentee)
-    {
-        if (!is_array($presentee) && !is_object($presentee)) {
-            throw new InvalidArgumentException('Presentee model should be an object or an array.');
+        if (is_null($this->wrappedModel)) {
+            throw new PresenterException('The wrapped model is not provided.');
         }
     }
 
     /**
-     * Set presentee model.
+     * Set the wrapped model.
      *
-     * @param array|object $presentee
-     * @return void
+     * @param array|object $wrappedModel
+     * @return $this
      */
-    protected function setPresentee($presentee)
+    public function setWrappedModel($wrappedModel)
     {
-        $this->presentee = $presentee;
+        if (!is_array($wrappedModel) && !is_object($wrappedModel)) {
+            throw new InvalidArgumentException('The wrapped model should be an object or an array.');
+        }
+
+        $this->wrappedModel = $wrappedModel;
+
+        return $this;
     }
 
     /**
-     * Get presentee model.
+     * Get the wrapped model.
      *
      * @return object|array
      */
-    public function getPresentee()
+    public function getWrappedModel()
     {
-        return $this->presentee;
+        $this->assertWrappedModel();
+
+        return $this->wrappedModel;
     }
 
     /**
-     * Get the array map of presenter attributes mapped to presentee model attributes.
+     * Get the array map of the presenter attributes mapped to the wrapped model attributes.
      *
      * Override this method to build attributes map.
      *
      * Example: return [
      *     ...
-     *     'presenter_attribute_name' => 'presentee_attribute_name',
+     *     'presenter_attribute_name' => 'wrapped_model_attribute_name',
      *     ...
      * ];
      *
      * @return array
      */
-    abstract protected function getAttributesMap() : array;
+    abstract protected function getAttributesMap(): array;
 
     /**
      * Attributes setter.
      *
      * @param string $attribute
      * @param mixed $value
-     * @throws PresenterExceptionContract
+     * @throws PresenterException
      */
     public function __set($attribute, $value)
     {
@@ -108,39 +94,44 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
     }
 
     /**
-     * Attributes getter for mapping presenter attributes to presentee model attributes.
+     * Attributes getter for mapping the presenter attributes to the wrapped model attributes.
      *
      * @param string $attribute
      * @return mixed|null
+     * @throws PresenterException
      */
     public function __get($attribute)
     {
-        $presenteeAttribute = $this->getAttributesMap()[$attribute] ?? null;
+        $this->assertWrappedModel();
 
-        if (is_null($presenteeAttribute)) {
-            return null;
+        $wrappedModelAttribute = $this->getAttributesMap()[$attribute] ?? null;
+
+        if (is_null($wrappedModelAttribute)) {
+            throw new AttributeNotFoundException(sprintf('The wrapped model attribute "%s" not found.', $attribute));
         }
 
-        if (is_callable($presenteeAttribute)) {
-            return call_user_func($presenteeAttribute, $this->presentee);
+        if (is_callable($wrappedModelAttribute)) {
+            return $wrappedModelAttribute($this->wrappedModel);
         }
 
         if (is_string($attribute) || is_float($attribute) || is_int($attribute) || is_bool($attribute)) {
-            return $this->getPresenteeAttribute($presenteeAttribute);
+            return $this->getWrappedModelAttribute($wrappedModelAttribute);
         }
 
         return null;
     }
 
     /**
-     * Get presentee model attribute.
+     * Get the wrapped model attribute.
      *
      * @param string $attribute
      * @return mixed|null
      */
-    public function getPresenteeAttribute(string $attribute)
+    public function getWrappedModelAttribute(string $attribute)
     {
-        $value = $this->presentee;
+        $this->assertWrappedModel();
+
+        $value = $this->wrappedModel;
 
         // Loop for retrieving nested attributes declared by using "dot notation".
         foreach (explode('.', $attribute) as $nestedAttribute) {

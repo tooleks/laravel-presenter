@@ -10,7 +10,7 @@ use Tooleks\Laravel\Presenter\Contracts\PresenterException as PresenterException
  * @package Tooleks\Laravel\Presenter\Exceptions
  * @author Oleksandr Tolochko <tooleks@gmail.com>
  */
-class PresenterException extends \Exception implements PresenterExceptionContract
+class PresenterException extends \RuntimeException implements PresenterExceptionContract
 {
 
 }

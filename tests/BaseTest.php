@@ -1,9 +1,7 @@
 <?php
 
-use Illuminate\Foundation\{
-    Application,
-    Testing\TestCase
-};
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Testing\TestCase;
 use Tooleks\Laravel\Presenter\Providers\PresenterProvider;
 
 /**
@@ -41,28 +39,18 @@ class BaseTest extends TestCase
      *
      * @return array
      */
-    public function testArrayProvider()
+    public function testModelProvider()
     {
-        return [
-            [[
-                'plain_attribute' => 'plain_attribute_value',
-                'nested' => [
-                    'attribute' => 'nested_attribute_value',
-                ],
-            ]],
+        $sample = [
+            'plain_attribute' => 'plain_attribute_value',
+            'nested' => [
+                'attribute' => 'nested_attribute_value',
+            ],
         ];
-    }
 
-    /**
-     * Test object provider.
-     *
-     * @return array
-     */
-    public function testObjectProvider()
-    {
         return [
-            // Hack to recursively cast an array to an object.
-            [json_decode(json_encode($this->testArrayProvider()[0][0]))],
+            [$sample],
+            [json_decode(json_encode($sample))], // Hack to recursively cast an array to an object.
         ];
     }
 
@@ -74,11 +62,9 @@ class BaseTest extends TestCase
     public function testCollectionProvider()
     {
         return [
-            [collect([
-                $this->testObjectProvider()[0][0],
-                $this->testObjectProvider()[0][0],
-                $this->testObjectProvider()[0][0],
-            ])],
+            [
+                collect([$this->testModelProvider()[0][0], $this->testModelProvider()[1][0]]),
+            ],
         ];
     }
 }

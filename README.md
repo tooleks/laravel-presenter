@@ -12,6 +12,7 @@ The package supports:
 * The Laravel 5.2 collections
 * JSON serialization
 * Casting to array/JSON
+* Service injections into the constructor
 
 ## Requirements
 
@@ -47,10 +48,12 @@ To register the service provider simply add the `Tooleks\Laravel\Presenter\Provi
 
 To define your presenter class, you need to extend base `Tooleks\Laravel\Presenter\Presenter` class, as shown in the example below.
 
-Override the `getAttributesMap()` method to build a map for presenter-to-presentee attributes.
+Override the `getAttributesMap()` method to build a map for presenter to wrapped model attributes.
 
 ```php
 <?php
+
+namespace App\Presenters;
 
 use Tooleks\Laravel\Presenter\Presenter;
 
@@ -68,25 +71,22 @@ class UserPresenter extends Presenter
     /**
      * @inheritdoc
      */
-    protected function getAttributesMap() : array
+    protected function getAttributesMap(): array
     {
         return [
-            // 'presenter_attribute_name' => 'presentee_attribute_name'
-            'name' => 'username',           // The presenter 'name' attribute mapped to presentee 'username' attribute.
-            'first_name' => 'first_name',   // The presenter 'first_name' attribute mapped to presentee 'first_name' attribute.
-            'last_name' => 'last_name',     // The presenter 'last_name' attribute mapped to presentee 'last_name' attribute.
+            // 'presenter_attribute_name' => 'wrapped_model_attribute_name'
+            'nickname' => 'username',
+            'short_name' => 'first_name',
             'full_name' => function () {
-                return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
-            },                              // The presenter 'full_name' attribute overridden by the anonymous function.
-            'role' => 'role.name',          // The presenter 'role' attribute mapped to presentee 'role.name' nested attribute.
+                return $this->getWrappedModelAttribute('first_name') . ' ' . $this->getWrappedModelAttribute('last_name');
+            },
+            'role' => 'role.name',
         ];
     }
 }
 ```
 
-Create a presenter object instance by passing a presentee model into a constructor and use it like an object with `name`, `first_name`, `last_name`, `full_name`, `role` attributes.
-
-Note: Presentee model may be an `array` or an `object`.
+Create a presenter object instance by passing a wrapped model into a `setWrappedModel` method and use it like an object with `nickname`, `short_name`, `full_name`, `role` attributes. The wrapped model may be an `array` or an `object`.
 
 ```php
 <?php
@@ -102,34 +102,22 @@ $userArray = [
     ],
 ];
 
-$userPresenter = new UserPresenter($userArray); // Create presenter from presentee array.
+$userObject = (object)$dataArray;
 
-echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
-echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
-echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
-```
+$userPresenter = app()->make(UserPresenter::class)->setWrappedModel($userArray);
+// Create the presenter from the wrapped model array.
 
-```php
-<?php
+$userPresenter = app()->make(UserPresenter::class)->setWrappedModel($userObject);
+// Create the presenter from the wrapped model object.
 
-use App\Presenters\UserPresenter;
-
-$userObject = (object)[
-    'username' => 'anna',
-    'first_name' => 'Anna',
-    'last_name' => 'P.',
-    'role' => [
-        'name' => 'User',
-    ],
-];
-
-$userPresenter = new UserPresenter($userObject); // Create presenter from presentee object.
-
-echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
-echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
-echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
+echo $userPresenter->nickname;
+// Prints 'anna' string, as we mapped the wrapped model 'username' attribute to the presenter 'nickname' attribute.
+echo $userPresenter->short_name;
+// Prints 'Anna' string, as we mapped the wrapped model 'first_name' attribute to the presenter 'short_name' attribute.
+echo $userPresenter->full_name;
+// Prints 'Anna P.' string, as we override the presenter 'full_name' attribute by the anonymous function.
+echo $userPresenter->role;
+// Prints 'User' string, as we mapped the wrapped model 'role.name' nested attribute to the presenter 'role' attribute.
 ```
 
 ### Collection Presentation
@@ -171,7 +159,7 @@ use App\User;
 
 $user = User::find(1);
 
-return response(new UserPresenter($user));
+return response(app()->make(UserPresenter::class)->setWrappedModel($user));
 ```
 
 ## Tests

@@ -1,7 +1,7 @@
 <?php
 
-use Tooleks\Laravel\Presenter\Presenter;
 use Illuminate\Support\Collection;
+use Tooleks\Laravel\Presenter\Presenter;
 
 /**
  * Class CollectionPresenterTest.
@@ -18,8 +18,8 @@ class CollectionPresenterTest extends BaseTest
     {
         $collection
             ->present(TestPresenter::class)
-            ->map(function ($userPresenter) {
-                $this->assertInstanceOf(Presenter::class, $userPresenter);
+            ->map(function ($testPresenter) {
+                $this->assertInstanceOf(Presenter::class, $testPresenter);
             });
     }
 }

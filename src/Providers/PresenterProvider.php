@@ -2,10 +2,8 @@
 
 namespace Tooleks\Laravel\Presenter\Providers;
 
-use Illuminate\Support\{
-    Collection,
-    ServiceProvider
-};
+use Illuminate\Support\Collection;
+use Illuminate\Support\ServiceProvider;
 
 /**
  * Class PresenterProvider.
@@ -22,9 +20,11 @@ class PresenterProvider extends ServiceProvider
      */
     public function boot()
     {
-        Collection::macro('present', function ($presenterClass) {
-            return $this->map(function ($presentee) use ($presenterClass) {
-                return new $presenterClass($presentee);
+        $container = $this->app;
+
+        Collection::macro('present', function ($presenterClass) use ($container) {
+            return $this->map(function ($wrappedModel) use ($container, $presenterClass) {
+                return $container->make($presenterClass)->setWrappedModel($wrappedModel);
             });
         });
     }

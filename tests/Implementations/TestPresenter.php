@@ -14,14 +14,14 @@ class TestPresenter extends Presenter
     /**
      * @inheritdoc
      */
-    protected function getAttributesMap() : array
+    protected function getAttributesMap(): array
     {
         return [
-            // 'presenter_attribute_name' => 'presentee_attribute_name'
+            // 'presenter_attribute_name' => 'wrapped_model_attribute_name'
             'plain' => 'plain_attribute',
             'nested' => 'nested.attribute',
-            'callable' => function ($presenter) {
-                return $this->getPresenteeAttribute('plain_attribute') . ' ' . $this->getPresenteeAttribute('nested.attribute');
+            'callable' => function () {
+                return $this->getWrappedModelAttribute('plain_attribute') . ' ' . $this->getWrappedModelAttribute('nested.attribute');
             },
         ];
     }
