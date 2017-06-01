@@ -10,7 +10,10 @@
         "representation",
         "entity",
         "model",
-        "collection"
+        "collection",
+        "mapper",
+        "mapping",
+        "data"
     ],
     "homepage": "https://github.com/tooleks/laravel-presenter",
     "license": "MIT",

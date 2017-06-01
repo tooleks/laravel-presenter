@@ -7,6 +7,7 @@ The package provides the `Presenter` layer for wrapping model objects into new p
 The package supports:
 
 * Objects and arrays presentation
+* Data mapping
 * Nested attributes
 * Attributes overriding
 * The Laravel 5.2 collections
@@ -90,9 +91,7 @@ Create a presenter object instance by passing a wrapped model into a `setWrapped
 ```php
 <?php
 
-use App\Presenters\UserPresenter;
-
-$userArray = [ 
+$user = [ 
     'username' => 'anna',
     'first_name' => 'Anna',
     'last_name' => 'P.',
@@ -101,12 +100,10 @@ $userArray = [
     ],
 ];
 
-$userObject = (object)$dataArray;
-
-$userPresenter = app()->make(UserPresenter::class)->setWrappedModel($userArray);
+$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user);
 // Create the presenter from the wrapped model array.
 
-$userPresenter = app()->make(UserPresenter::class)->setWrappedModel($userObject);
+$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel((object)$user);
 // Create the presenter from the wrapped model object.
 
 echo $userPresenter->nickname;
@@ -126,24 +123,32 @@ The package also provides the collection macros method `present()` for wrapping 
 ```php
 <?php
 
-use App\Presenters\UserPresenter;
-
-collect([$userArray, $userObject])->present(UserPresenter::class);
+collect([$user])->present(\App\Presenters\UserPresenter::class);
 // Create the collection of the 'UserPresenter' items.
 ```
 
-## Advanced Usage Examples
+### Data Mapping
+
+The package provides a simple mechanism for data mapping. All you need is to call `toArray()` method on the presenter object instance.
+
+```php
+<?php
+
+$mappedDataArray = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user)->toArray();
+
+$mappedDataObject = (object) app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user)->toArray();
+```
+
+### Using as a Response Data
 
 The `Tooleks\Laravel\Presenter\Presenter` class implements `Illuminate\Contracts\Support\Arrayable`, `Illuminate\Contracts\Support\Jsonable`, `JsonSerializable` interfaces, so you may pass objects of this class directly into the response.
 
 ```php
 <?php
 
-use App\Presenters\UserPresenter;
+$content = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user);
 
-$user = \App\User::find(1);
-
-return response(app()->make(UserPresenter::class)->setWrappedModel($user));
+response($content);
 ```
 
 ## Tests
