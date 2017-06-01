@@ -13,41 +13,53 @@ class PresenterModelTest extends BaseTest
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testInitialization($model)
+    public function testInitialization($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->assertInstanceOf(Presenter::class, $testPresenter);
     }
 
-    public function testInvalidInitialization()
+    /**
+     * @dataProvider testModelProvider
+     * @param array $model
+     * @param string $presenterClass
+     * @param array $data
+     */
+    public function testInvalidInitialization($model, $presenterClass, $data)
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->app->make(TestPresenter::class)->setWrappedModel('invalid');
+        $this->app->make($presenterClass)->setWrappedModel('invalid');
     }
 
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testSetExistingAttribute($model)
+    public function testSetExistingAttribute($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->expectException(PresenterException::class);
 
-        $testPresenter->plain = 'Anna';
+        $testPresenter->{array_keys($data)[0]} = 'Anna';
     }
 
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testSetNotExistingAttribute($model)
+    public function testSetNotExistingAttribute($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->expectException(PresenterException::class);
 
@@ -57,62 +69,42 @@ class PresenterModelTest extends BaseTest
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testGetPlainAttribute($model)
+    public function testGetAttribute($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
-        $this->assertEquals($testPresenter->plain, $model->plain_attribute ?? $model['plain_attribute']);
-    }
-
-    /**
-     * @dataProvider testModelProvider
-     * @param array $model
-     */
-    public function testGetNestedAttribute($model)
-    {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
-
-        $this->assertEquals($testPresenter->nested, $model->nested->attribute ?? $model['nested']['attribute']);
-    }
-
-    /**
-     * @dataProvider testModelProvider
-     * @param array $model
-     */
-    public function testGetCallableAttribute($model)
-    {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
-
-        if (is_object($model)) {
-            $callableAttribute = $model->plain_attribute . ' ' . $model->nested->attribute;
-        } elseif (is_array($model)) {
-            $callableAttribute = $model['plain_attribute'] . ' ' . $model['nested']['attribute'];
+        foreach ($data as $attribute => $value) {
+            $this->assertEquals($testPresenter->{$attribute}, $value);
         }
-
-        $this->assertEquals($testPresenter->callable, $callableAttribute ?? null);
     }
 
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testGetNotExistingAttribute($model)
+    public function testGetNotExistingAttribute($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->expectException(AttributeNotFoundException::class);
 
-        $this->assertEquals($testPresenter->not_existing, null);
+        $testPresenter->not_existing;
     }
 
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testToArrayMethod($model)
+    public function testToArrayMethod($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $modelFromToArrayMethod = $testPresenter->toArray();
 
@@ -120,7 +112,6 @@ class PresenterModelTest extends BaseTest
 
         $getMapMethod = (new ReflectionObject($testPresenter))->getMethod('getAttributesMap');
         $getMapMethod->setAccessible(true);
-
         $modelFromGetMapMethod = $getMapMethod->invoke($testPresenter); // Call protected 'getAttributesMap()' method.
 
         $this->assertInternalType('array', $modelFromGetMapMethod);
@@ -134,10 +125,12 @@ class PresenterModelTest extends BaseTest
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testJsonSerializeMethod($model)
+    public function testJsonSerializeMethod($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->assertEquals($testPresenter->jsonSerialize(), $testPresenter->toArray());
     }
@@ -145,10 +138,12 @@ class PresenterModelTest extends BaseTest
     /**
      * @dataProvider testModelProvider
      * @param array $model
+     * @param string $presenterClass
+     * @param array $data
      */
-    public function testToJsonMethod($model)
+    public function testToJsonMethod($model, $presenterClass, $data)
     {
-        $testPresenter = $this->app->make(TestPresenter::class)->setWrappedModel($model);
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
         $this->assertNotEquals(json_decode($testPresenter->toJson()), null);
     }

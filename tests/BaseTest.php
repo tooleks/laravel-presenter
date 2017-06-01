@@ -44,8 +44,24 @@ class BaseTest extends TestCase
         ];
 
         return [
-            [$sample],
-            [json_decode(json_encode($sample))], // Hack to recursively cast an array to an object.
+            [
+                $sample,
+                TestPresenter::class,
+                [
+                    'plain' => 'plain_attribute_value',
+                    'nested' => 'nested_attribute_value',
+                    'callable' => 'plain_attribute_value' . ' ' . 'nested_attribute_value',
+                ],
+            ],
+            [
+                json_decode(json_encode($sample)), // Hack to recursively cast an array to an object.
+                TestPresenter::class,
+                [
+                    'plain' => 'plain_attribute_value',
+                    'nested' => 'nested_attribute_value',
+                    'callable' => 'plain_attribute_value' . ' ' . 'nested_attribute_value',
+                ],
+            ],
         ];
     }
 
