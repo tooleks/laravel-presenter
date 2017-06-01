@@ -107,7 +107,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
         $wrappedModelAttribute = $this->getAttributesMap()[$attribute] ?? null;
 
         if (is_null($wrappedModelAttribute)) {
-            throw new AttributeNotFoundException(sprintf('The wrapped model attribute "%s" not found.', $attribute));
+            throw new AttributeNotFoundException(sprintf('The presenter attribute "%s" not found.', $attribute));
         }
 
         if (is_callable($wrappedModelAttribute)) {
