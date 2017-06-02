@@ -106,9 +106,7 @@ class PresenterTest extends BaseTest
     {
         $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
 
-        $this->expectException(AttributeNotFoundException::class);
-
-        $testPresenter->getWrappedModelAttribute('invalid');
+        $this->assertEquals($testPresenter->getWrappedModelAttribute('invalid'), null);
     }
 
     /**
