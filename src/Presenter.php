@@ -2,6 +2,7 @@
 
 namespace Tooleks\Laravel\Presenter;
 
+use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
@@ -110,7 +111,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
             throw new AttributeNotFoundException(sprintf('The presenter attribute "%s" not found.', $attribute));
         }
 
-        if (is_callable($wrappedModelAttribute)) {
+        if ($wrappedModelAttribute instanceof Closure) {
             return $wrappedModelAttribute($this->wrappedModel);
         }
 
