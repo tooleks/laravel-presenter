@@ -20,11 +20,21 @@ class PresenterProvider extends ServiceProvider
      */
     public function boot()
     {
-        $container = $this->app;
+        $this->registerCollectionPresentMacros();
+    }
 
-        Collection::macro('present', function ($presenterClass) use ($container) {
-            return $this->map(function ($wrappedModel) use ($container, $presenterClass) {
-                return $container->make($presenterClass)->setWrappedModel($wrappedModel);
+    /**
+     * Register collection present macros method.
+     *
+     * @return void
+     */
+    protected function registerCollectionPresentMacros()
+    {
+        $app = $this->app; // The application container instance.
+
+        Collection::macro('present', function ($presenterClass) use ($app) {
+            return $this->map(function ($wrappedModel) use ($app, $presenterClass) {
+                return $app->make($presenterClass)->setWrappedModel($wrappedModel);
             });
         });
     }
