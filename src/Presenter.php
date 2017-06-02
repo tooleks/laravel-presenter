@@ -139,7 +139,8 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
             } elseif (is_object($value) && isset($value->{$nestedAttribute})) {
                 $value = $value->{$nestedAttribute};
             } else {
-                throw new AttributeNotFoundException(sprintf('The wrapped model attribute "%s" not found.', print_r($attribute, true)));
+                $value = null;
+                break;
             }
         }
 
