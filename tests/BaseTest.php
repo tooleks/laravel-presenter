@@ -24,13 +24,6 @@ class BaseTest extends TestCase
         return $app;
     }
 
-    public function testPresenterProvider()
-    {
-        $presenterProvider = $this->app->getProvider(PresenterProvider::class);
-
-        $this->assertInstanceOf(PresenterProvider::class, $presenterProvider);
-    }
-
     /**
      * @return array
      */
