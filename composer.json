@@ -2,7 +2,7 @@
     "name": "tooleks/laravel-presenter",
     "type": "library",
     "description": "The Laravel Presenter Package",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "keywords": [
         "php",
         "laravel",
@@ -10,7 +10,10 @@
         "representation",
         "entity",
         "model",
-        "collection"
+        "collection",
+        "mapper",
+        "mapping",
+        "data"
     ],
     "homepage": "https://github.com/tooleks/laravel-presenter",
     "license": "MIT",

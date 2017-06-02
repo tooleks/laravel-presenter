@@ -7,11 +7,13 @@ The package provides the `Presenter` layer for wrapping model objects into new p
 The package supports:
 
 * Objects and arrays presentation
+* Data mapping
 * Nested attributes
 * Attributes overriding
 * The Laravel 5.2 collections
 * JSON serialization
 * Casting to array/JSON
+* Injections into the constructor
 
 ## Requirements
 
@@ -47,19 +49,20 @@ To register the service provider simply add the `Tooleks\Laravel\Presenter\Provi
 
 To define your presenter class, you need to extend base `Tooleks\Laravel\Presenter\Presenter` class, as shown in the example below.
 
-Override the `getAttributesMap()` method to build a map for presenter-to-presentee attributes.
+Override the `getAttributesMap()` method to build attributes map definition.
 
 ```php
 <?php
+
+namespace App\Presenters;
 
 use Tooleks\Laravel\Presenter\Presenter;
 
 /**
  * Class UserPresenter.
  *
- * @property string name
- * @property string first_name
- * @property string last_name
+ * @property string nickname
+ * @property string short_name
  * @property string full_name
  * @property string role
  */
@@ -68,32 +71,27 @@ class UserPresenter extends Presenter
     /**
      * @inheritdoc
      */
-    protected function getAttributesMap() : array
+    protected function getAttributesMap(): array
     {
         return [
-            // 'presenter_attribute_name' => 'presentee_attribute_name'
-            'name' => 'username',           // The presenter 'name' attribute mapped to presentee 'username' attribute.
-            'first_name' => 'first_name',   // The presenter 'first_name' attribute mapped to presentee 'first_name' attribute.
-            'last_name' => 'last_name',     // The presenter 'last_name' attribute mapped to presentee 'last_name' attribute.
+            // 'presenter_attribute_name' => 'wrapped_model_attribute_name'
+            'nickname' => 'username',
+            'short_name' => 'first_name',
             'full_name' => function () {
-                return $this->getPresenteeAttribute('first_name') . ' ' . $this->getPresenteeAttribute('last_name');
-            },                              // The presenter 'full_name' attribute overridden by the anonymous function.
-            'role' => 'role.name',          // The presenter 'role' attribute mapped to presentee 'role.name' nested attribute.
+                return $this->getWrappedModelAttribute('first_name') . ' ' . $this->getWrappedModelAttribute('last_name');
+            },
+            'role' => 'role.name',
         ];
     }
 }
 ```
 
-Create a presenter object instance by passing a presentee model into a constructor and use it like an object with `name`, `first_name`, `last_name`, `full_name`, `role` attributes.
-
-Note: Presentee model may be an `array` or an `object`.
+Create a presenter object instance by passing a wrapped model into a `setWrappedModel` method and use it like an object with `nickname`, `short_name`, `full_name`, `role` attributes. The wrapped model may be an `array` or an `object`.
 
 ```php
 <?php
 
-use App\Presenters\UserPresenter;
-
-$userArray = [ 
+$user = [ 
     'username' => 'anna',
     'first_name' => 'Anna',
     'last_name' => 'P.',
@@ -102,76 +100,55 @@ $userArray = [
     ],
 ];
 
-$userPresenter = new UserPresenter($userArray); // Create presenter from presentee array.
+$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user);
+// Create the presenter from the wrapped model array.
 
-echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
-echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
-echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
-```
+$userPresenter = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel((object) $user);
+// Create the presenter from the wrapped model object.
 
-```php
-<?php
-
-use App\Presenters\UserPresenter;
-
-$userObject = (object)[
-    'username' => 'anna',
-    'first_name' => 'Anna',
-    'last_name' => 'P.',
-    'role' => [
-        'name' => 'User',
-    ],
-];
-
-$userPresenter = new UserPresenter($userObject); // Create presenter from presentee object.
-
-echo $userPresenter->name;          // Prints 'anna' string, as we mapped presentee 'username' attribute to presenter 'name' attribute.
-echo $userPresenter->first_name;    // Prints 'Anna' string, as we mapped presentee 'first_name' attribute to presenter 'first_name' attribute.
-echo $userPresenter->full_name;     // Prints 'Anna P.' string, as we override presenter 'full_name' attribute by the anonymous function.
-echo $userPresenter->role;          // Prints 'User' string, as we mapped presentee 'role.name' nested attribute to presenter 'role' attribute.
+echo $userPresenter->nickname;
+// Prints 'anna' string, as we mapped the wrapped model 'username' attribute to the presenter 'nickname' attribute.
+echo $userPresenter->short_name;
+// Prints 'Anna' string, as we mapped the wrapped model 'first_name' attribute to the presenter 'short_name' attribute.
+echo $userPresenter->full_name;
+// Prints 'Anna P.' string, as we override the presenter 'full_name' attribute by the anonymous function.
+echo $userPresenter->role;
+// Prints 'User' string, as we mapped the wrapped model 'role.name' nested attribute to the presenter 'role' attribute.
 ```
 
 ### Collection Presentation
 
-The package also provides collection macros method `present()` for wrapping each item in the collection into a presenter class.
+The package also provides the collection macros method `present()` for wrapping each item in the collection into a presenter class.
 
 ```php
 <?php
 
-use Illuminate\Support\Collection;
-use App\Presenters\UserPresenter;
-use App\User;
-
-$userCollection = new Collection([
-    new User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-    new User([
-        'username' => 'anna',
-        'first_name' => 'Anna',
-        'last_name' => 'P.',
-    ]),
-]); // A collection of the 'User' items.
-
-$userCollection->present(UserPresenter::class); // A collection of the 'UserPresenter' items.
+collect([$user])->present(\App\Presenters\UserPresenter::class);
+// Create the collection of the 'UserPresenter' items.
 ```
 
-## Advanced Usage Examples
+### Data Mapping
+
+The package provides a simple mechanism for data mapping. All you need is to call `toArray()` method on the presenter object instance.
+
+```php
+<?php
+
+$mappedDataArray = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user)->toArray();
+
+$mappedDataObject = (object) app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user)->toArray();
+```
+
+### Using as a Response Data
 
 The `Tooleks\Laravel\Presenter\Presenter` class implements `Illuminate\Contracts\Support\Arrayable`, `Illuminate\Contracts\Support\Jsonable`, `JsonSerializable` interfaces, so you may pass objects of this class directly into the response.
 
 ```php
 <?php
 
-use App\Presenters\UserPresenter;
-use App\User;
+$content = app()->make(\App\Presenters\UserPresenter::class)->setWrappedModel($user);
 
-$user = User::find(1);
-
-return response(new UserPresenter($user));
+response($content);
 ```
 
 ## Tests
