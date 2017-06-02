@@ -91,7 +91,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
      */
     public function __set($attribute, $value)
     {
-        throw new PresenterException('Attribute modification is not allowed.');
+        throw new PresenterException('The attribute modification is not allowed.');
     }
 
     /**
@@ -107,19 +107,17 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
 
         $wrappedModelAttribute = $this->getAttributesMap()[$attribute] ?? null;
 
-        if (is_null($wrappedModelAttribute)) {
-            throw new AttributeNotFoundException(sprintf('The presenter attribute "%s" not found.', $attribute));
-        }
-
+        // Get the attribute value from an anonymous function.
         if ($wrappedModelAttribute instanceof Closure) {
             return $wrappedModelAttribute($this->wrappedModel);
         }
 
-        if (is_string($attribute) || is_float($attribute) || is_int($attribute) || is_bool($attribute)) {
+        // Get the attribute value fom the wrapped model.
+        if (is_string($wrappedModelAttribute) || is_float($wrappedModelAttribute) || is_int($wrappedModelAttribute)) {
             return $this->getWrappedModelAttribute($wrappedModelAttribute);
         }
 
-        return null;
+        throw new AttributeNotFoundException(sprintf('The presenter attribute "%s" not found.', print_r($attribute, true)));
     }
 
     /**
@@ -141,8 +139,7 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable
             } elseif (is_object($value) && isset($value->{$nestedAttribute})) {
                 $value = $value->{$nestedAttribute};
             } else {
-                $value = null;
-                break;
+                throw new AttributeNotFoundException(sprintf('The wrapped model attribute "%s" not found.', print_r($attribute, true)));
             }
         }
 

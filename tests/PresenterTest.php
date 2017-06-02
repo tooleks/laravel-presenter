@@ -63,7 +63,7 @@ class PresenterTest extends BaseTest
 
         $this->expectException(PresenterException::class);
 
-        $testPresenter->not_existing = 'not_existing_value';
+        $testPresenter->invalid = 'invalid';
     }
 
     /**
@@ -93,7 +93,22 @@ class PresenterTest extends BaseTest
 
         $this->expectException(AttributeNotFoundException::class);
 
-        $testPresenter->not_existing;
+        $testPresenter->invalid;
+    }
+
+    /**
+     * @dataProvider testModelProvider
+     * @param array $model
+     * @param string $presenterClass
+     * @param array $data
+     */
+    public function testGetNotExistingWrappedModelAttribute($model, $presenterClass, $data)
+    {
+        $testPresenter = $this->app->make($presenterClass)->setWrappedModel($model);
+
+        $this->expectException(AttributeNotFoundException::class);
+
+        $testPresenter->getWrappedModelAttribute('invalid');
     }
 
     /**
